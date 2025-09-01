@@ -12,6 +12,7 @@ services:
 
   php:
     build: ./docker/php
+    user: "${UID}:${GID}"
     volumes:
       - ./src:/var/www/
 
