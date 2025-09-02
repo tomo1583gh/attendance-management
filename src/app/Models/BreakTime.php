@@ -8,4 +8,18 @@ use Illuminate\Database\Eloquent\Model;
 class BreakTime extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'attendance_id',
+        'start_at',
+        'end_at',
+    ];
+
+    /**
+     * 勤怠（Attendance）とのリレーション
+     */
+    public function attendance()
+    {
+        return $this->belongsTo(Attendance::class);
+    }
 }

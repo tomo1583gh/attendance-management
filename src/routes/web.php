@@ -24,35 +24,68 @@ Route::redirect('/home', '/attendance');
 Route::redirect('/', '/login');
 Route::redirect('/admin', '/admin/login');
 
+
+// 管理者　認証（ログイン/ログアウト）
 Route::prefix('admin')->name('admin.')->group(function () {
-    Route::get('/login', [\App\Http\Controllers\Admin\Auth\LoginController::class, 'showLoginForm'])->name('login');
-    Route::post('/login', [\App\Http\Controllers\Admin\Auth\LoginController::class, 'login']);
-    Route::post('/logout', [\App\Http\Controllers\Admin\Auth\LoginController::class, 'logout'])->name('logout');
+
+    Route::get('/login', [\App\Http\Controllers\Admin\Auth\LoginController::class, 'showLoginForm'])
+        ->name('login');
+    Route::post('/login', [\App\Http\Controllers\Admin\Auth\LoginController::class, 'login'])
+        ->name('login.attempt');
+    Route::post('/logout', [\App\Http\Controllers\Admin\Auth\LoginController::class, 'logout'])
+        ->name('logout');
 });
 
-// 一般ユーザー（要ログイン）
+// 一般ユーザー（要ログイン＆メール認証）
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/attendance', [UAttendance::class, 'index']);
-    Route::post('/attendance/clock-in', [UAttendance::class, 'clockIn']);
-    Route::post('/attendance/break-in', [UAttendance::class, 'breakIn']);
-    Route::post('/attendance/break-out', [UAttendance::class, 'breakOut']);
-    Route::post('/attendance/clock-out', [UAttendance::class, 'clockOut']);
 
-    Route::get('/attendance/list', [UList::class, 'index']);
-    Route::get('/attendance/detail/{id}', [UDetail::class, 'show']);
+    // 打刻画面　+　アクション
+    Route::get('/attendance', [UAttendance::class, 'index'])
+        ->name('attendance.index');
+    Route::post('/attendance/clock-in', [UAttendance::class, 'clockIn'])
+        ->name('attendance.clockIn');
+    Route::post('/attendance/break-in', [UAttendance::class, 'breakIn'])
+        ->name('attendance.breakIn');
+    Route::post('/attendance/break-out', [UAttendance::class, 'breakOut'])
+        ->name('attendance.breakOut');
+    Route::post('/attendance/clock-out', [UAttendance::class, 'clockOut'])
+        ->name('attendance.clockOut');
 
-    Route::get('/stamp_correction_request/list', [URequest::class, 'index']);
-    Route::post('/attendance/{id}/request', [URequest::class, 'store']); // 修正申請
+    // 勤怠一覧 / 詳細
+    Route::get('/attendance/list', [UList::class, 'index'])
+        ->name('attendance.list');
+    Route::get('/attendance/detail/{id}', [UDetail::class, 'show'])
+        ->name('attendance.detail');
+
+    // 申請一覧（一般ユーザー）/ 修正申請登録
+    Route::get('/stamp_correction_request/list', [URequest::class, 'index'])
+        ->name('request.list');
+    Route::post('/attendance/{id}/request', [URequest::class, 'store'])
+        ->name('request.store');
 });
 
 // 管理者（adminガード）
-Route::prefix('admin')->middleware('auth:admin')->group(function () {
-    Route::get('/attendances', [AAttendance::class, 'daily']);                 // 日次一覧
-    Route::get('/attendances/{id}', [AAttendance::class, 'show']);             // 詳細（修正可）
-    Route::get('/users', [AUser::class, 'index']);                              // スタッフ一覧
-    Route::get('/users/{user}/attendances', [AUser::class, 'monthly']);        // スタッフ別月次
-    Route::get('/requests', [ARequest::class, 'index']);                        // 申請一覧(承認待ち/承認済み)
-    Route::get('/requests/{id}', [ARequest::class, 'show']);                    // 申請詳細
-    Route::post('/requests/{id}/approve', [ARequest::class, 'approve']);        // 承認
-    Route::get('/users/{user}/attendances/csv', [AUser::class, 'exportCsv']);   // CSV出力
+Route::prefix('admin')->name('admin.')->middleware('auth:admin')->group(function () {
+
+    // 日次勤怠一覧 / 詳細
+    Route::get('/attendances', [AAttendance::class, 'daily'])
+        -> name('attendances.daily');
+    Route::get('/attendances/{id}', [AAttendance::class, 'show'])
+        ->name('attendances.show');
+
+    // スタッフ一覧 / スタッフ別月次 / CSV出力
+    Route::get('/users', [AUser::class, 'index'])
+        ->name('users.index');
+    Route::get('/users/{user}/attendances', [AUser::class, 'monthly'])
+        ->name('users.attendances.monthly');
+    Route::get('/users/{user}/attendances/csv', [AUser::class, 'exportCsv'])
+        ->name('users.attendances.csv');
+
+    // 申請一覧 / 詳細 / 承認
+    Route::get('/requests', [ARequest::class, 'index'])
+        ->name('requests.index');
+    Route::get('/requests/{id}', [ARequest::class, 'show'])
+        ->name('requests.show');
+    Route::post('/requests/{id}/approve', [ARequest::class, 'approve'])
+        ->name('requests.approve');
 });

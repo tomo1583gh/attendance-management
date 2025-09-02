@@ -18,9 +18,20 @@ class Attendance extends Model
         'note',
     ];
 
+    protected $casts = [
+        'work_date'    => 'date',
+        'clock_in_at'  => 'datetime',
+        'clock_out_at' => 'datetime',
+    ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
     public function breaks()
     {
-        return $this->hasMany(BreakTime::class);
+        return $this->hasMany(\App\Models\BreakTime::class, 'attendance_id');
     }
 
     public function getStatusAttribute(): string
@@ -30,5 +41,10 @@ class Attendance extends Model
         if (!is_null($this->clock_in_at) && is_null($this->clock_out_at) && $hasOpenBreak) return '休憩中';
         if (!is_null($this->clock_in_at) && is_null($this->clock_out_at)) return '出勤中';
         return '退勤済';
+    }
+
+    public function correctionRequests()
+    {
+        return $this->hasMany(StampCorrectionRequest::class);
     }
 }

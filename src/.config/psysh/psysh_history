@@ -1,0 +1,15 @@
+App\Models\Attendance::where('user_id', auth()->id())->orderByDesc('id')->take(5)->get(['id','work_date','clock_in_at','clock_out_at']);
+Schema::getColumnListing('attendances');
+use App\Models\User;
+use App\Models\Attendance;
+$userId = User::where('email', 'あなたのユーザーのメール@example.com')->value('id');
+$userId = User::where('email', 'user@example.com')->value('id');
+$userId
+Attendance::where('user_id', $userId)
+->orderByDesc('id')
+->limit(10)
+->get(['id','user_id','work_date','clock_in_at','clock_out_at']);
+Attendance::where('user_id', $userId)
+    ->orderByDesc('id')
+    ->limit(10)
+    ->get(['id','user_id','work_date','clock_in_at','clock_out_at']);

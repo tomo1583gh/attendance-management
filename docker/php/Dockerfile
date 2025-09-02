@@ -11,3 +11,7 @@ RUN curl -sS https://getcomposer.org/installer | php \
   && composer self-update
 
 WORKDIR /var/www
+
+RUN useradd -ms /bin/bash www
+USER www
+WORKDIR /var/www
