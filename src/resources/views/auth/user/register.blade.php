@@ -27,5 +27,5 @@
 @endsection
 
 @section('links')
-<a class="auth-link" href="{{ route('login') }}">ログインはこちら</a>
+<a class="auth-links__item" href="{{ route('login') }}">一般ログインはこちら</a>
 @endsection

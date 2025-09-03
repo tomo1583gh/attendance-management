@@ -62,7 +62,7 @@ class AttendanceController extends Controller
 
             $rows[] = (object) [
                 'user_name'     => $u->name,
-                'attendance_id' => $a->id ?? null,
+                'attendance_id' => $a?->id,
                 'in_time'       => $in,
                 'out_time'      => $out,
                 'break_text'    => $breakText,

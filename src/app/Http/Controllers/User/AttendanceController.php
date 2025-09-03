@@ -114,5 +114,31 @@ class AttendanceController extends Controller
         $attendance->update(['clock_out_at' => now()]);
 
         return redirect()->route('attendance.index')->with('status', 'お疲れ様でした。');
-    } 
+    }
+
+    public function update(Request $request, $id)
+    {
+        $attendance = Attendance::findOrFail($id);
+
+        // 出勤時刻
+        $attendance->clock_in_at = $request->filled('clock_in')
+            ? Carbon::createFromFormat('H:i', $request->clock_in)
+            ->setDateFrom($attendance->work_date)
+            : null;
+
+        // 退勤時刻 ← ここが大事！
+        $attendance->clock_out_at = $request->filled('clock_out')
+            ? Carbon::createFromFormat('H:i', $request->clock_out)
+            ->setDateFrom($attendance->work_date)
+            : null;
+
+        // 備考
+        $attendance->note = $request->note;
+
+        $attendance->save();
+
+        return redirect()
+            ->route('admin.attendance.show', ['id' => $attendance->id])
+            ->with('status', '勤怠を更新しました');
+    }
 }

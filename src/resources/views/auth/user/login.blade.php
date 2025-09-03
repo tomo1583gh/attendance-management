@@ -21,5 +21,9 @@
 @endsection
 
 @section('links')
-<a class="auth-link" href="{{ route('register') }}">会員登録はこちら</a>
+  <div class="auth-links auth-links--stack">
+    <a href="{{ route('register') }}" class="auth-links__item">会員登録はこちら</a>
+    <a href="{{ route('admin.login') }}" class="auth-links__item">管理者ログインはこちら</a>
+  </div>
 @endsection
+

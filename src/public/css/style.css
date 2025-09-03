@@ -179,8 +179,8 @@ body {
 }
 
 .btn--primary {
-  background: var(--black);
-  color: var(--white);
+  background: var(--white);
+  color: var(--brack);
 }
 
 .btn--ghost {
@@ -708,5 +708,182 @@ body {
   .table--admin-daily th:nth-child(1),
   .table--admin-daily td:nth-child(1) {
     width: 140px;
+  }
+}
+
+/* 勤怠詳細（admin） */
+/* ページタイトル */
+.page-title {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 24px 0 16px;
+  position: relative;
+  padding-left: 16px;
+}
+
+.page-title::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 4px;
+  width: 6px;
+  height: 24px;
+  background: #111;
+  border-radius: 2px;
+}
+
+/* アラート */
+.alert-error {
+  background: #ffecec;
+  color: #b40000;
+  border: 1px solid #f5b5b5;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+}
+
+.alert-success {
+  background: #ecfff0;
+  color: #005d2a;
+  border: 1px solid #b7e2c7;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+}
+
+/* 詳細フォーム全体 */
+.detail-form {
+  max-width: 880px;
+  margin: 0 auto 48px;
+}
+
+/* カード */
+.detail-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid #eee;
+}
+
+/* 行 */
+.detail-row {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  align-items: center;
+  border-top: 1px solid #eee;
+  background: #fff;
+  min-height: 72px;
+}
+
+.detail-row.header {
+  border-top: none;
+}
+
+.detail-col.label {
+  font-size: 14px;
+  color: #777;
+  padding: 20px 24px;
+  background: #fff;
+}
+
+.detail-col.value {
+  padding: 20px 24px;
+  font-size: 16px;
+  color: #222;
+}
+
+/* 日付の並び（「2023年」「6月1日」） */
+.date-split {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+}
+
+.date-year {
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.date-monthday {
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+/* 時刻レンジ */
+.time-range {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.time-tilde {
+  display: inline-block;
+  padding: 0 4px;
+  color: #444;
+}
+
+/* 入力要素 */
+.input-time {
+  width: 140px;
+  height: 40px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 16px;
+  background: #fff;
+}
+
+.input-note {
+  width: 100%;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 16px;
+  resize: vertical;
+  background: #fff;
+}
+
+/* ボタン */
+.detail-actions {
+  display: flex;
+  justify-content: center;
+}
+
+.btn-primary {
+  display: inline-block;
+  min-width: 140px;
+  height: 44px;
+  padding: 0 20px;
+  border: none;
+  border-radius: 8px;
+  background: #121212;
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  margin: 24px auto 0;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+}
+
+/* レスポンシブ（PC幅でも崩れない前提、タブレット対応） */
+@media (max-width: 768px) {
+  .detail-row {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-col.label {
+    border-bottom: 1px solid #f3f3f3;
+  }
+
+  .time-range {
+    gap: 12px;
+  }
+
+  .input-time {
+    width: 120px;
   }
 }

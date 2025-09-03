@@ -15,6 +15,11 @@ class BreakTime extends Model
         'end_at',
     ];
 
+    protected $casts = [
+        'start_at' => 'datetime',
+        'end_at'   => 'datetime',
+    ];
+
     /**
      * 勤怠（Attendance）とのリレーション
      */
