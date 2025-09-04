@@ -27,3 +27,8 @@ php artisan route:list | grep admin.attendance
 grep -RIn "admin/attendances" resources routes
 grep -RIn "admin.attendances." resources routes
 exit
+php artisan optimize:clear
+php artisan optimize:clear
+php artisan optimize:clear
+php artisan optimize:clear
+exit

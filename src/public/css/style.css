@@ -887,3 +887,213 @@ body {
     width: 120px;
   }
 }
+
+/* スタッフ一覧画面（admin） */
+/* スタッフ一覧：テーブルカード */
+.table-wrap--admin-users {
+  max-width: 760px;
+  margin: 24px auto 48px;
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* テーブル本体 */
+.table--admin-users {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.table--admin-users thead th {
+  background: #fafafa;
+  color: #666;
+  font-weight: 600;
+  height: 48px;
+  border-bottom: 1px solid #eee;
+}
+
+.table--admin-users tbody td {
+  text-align: center;
+  height: 48px;
+  border-bottom: 1px solid #f1f1f1;
+}
+
+.table--admin-users tbody tr:nth-child(even) td {
+  background: #fcfcfc;
+}
+
+.table--admin-users .t-left {
+  text-align: left;
+  padding-left: 16px;
+}
+
+.table--admin-users .empty {
+  text-align: center;
+  color: #888;
+  padding: 24px 0;
+}
+
+/* 詳細リンク */
+.link-detail {
+  text-decoration: underline;
+  color: #111;
+}
+
+.link-detail:hover {
+  opacity: 0.85;
+}
+
+/* レスポンシブ（幅狭での余白最適化） */
+@media (max-width: 768px) {
+  .table-wrap--admin-users {
+    margin: 16px 12px 40px;
+    border-radius: 10px;
+  }
+
+  .table--admin-users thead th,
+  .table--admin-users tbody td {
+    height: 44px;
+    font-size: 13px;
+  }
+}
+
+/* スタッフ別勤怠一覧画面（admin） */
+/* 月スイッチ */
+.month-switch {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 12px auto 16px;
+}
+
+.month-nav {
+  display: inline-block;
+  padding: 6px 12px;
+  border: 1px solid #e5e5e5;
+  border-radius: 999px;
+  background: #fff;
+  font-size: 13px;
+  text-decoration: none;
+  color: #111;
+}
+
+.month-nav:hover {
+  opacity: 0.85;
+}
+
+.month-display {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  border-radius: 999px;
+  background: #fff;
+  border: 1px solid #eee;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+/* テーブルカード */
+.table-wrap--admin-user-monthly {
+  max-width: 760px;
+  margin: 0 auto 24px;
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.table--admin-user-monthly {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.table--admin-user-monthly thead th {
+  background: #fafafa;
+  color: #666;
+  font-weight: 600;
+  height: 48px;
+  border-bottom: 1px solid #eee;
+}
+
+.table--admin-user-monthly tbody td {
+  text-align: center;
+  height: 48px;
+  border-bottom: 1px solid #f1f1f1;
+}
+
+.table--admin-user-monthly tbody tr:nth-child(even) td {
+  background: #fcfcfc;
+}
+
+.table--admin-user-monthly .t-left {
+  text-align: left;
+  padding-left: 16px;
+}
+
+.table--admin-user-monthly .empty {
+  text-align: center;
+  color: #888;
+  padding: 24px 0;
+}
+
+/* CSVボタン */
+/* 右寄せのフッター操作行（CSV出力ボタン置き場） */
+.footer-actions {
+  max-width: 760px;
+  margin: 8px auto 40px;
+  display: flex;
+}
+
+.footer-actions--right {
+  justify-content: flex-end;
+}
+
+.footer-actions--csv {
+  display: flex;
+  justify-content: flex-end;
+  max-width: 760px;
+  margin: 8px auto 40px;
+}
+
+.btn-outline {
+  display: inline-block;
+  padding: 8px 16px;
+  border: 1px solid #111;
+  background: #111;
+  color: #fff;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.btn-outline:hover {
+  opacity: .85;
+}
+
+/* 既存の .link-detail と揃える */
+.link-detail {
+  text-decoration: underline;
+  color: #111;
+}
+
+.link-detail:hover {
+  opacity: .85;
+}
+
+/* レスポンシブ */
+@media (max-width: 768px) {
+  .table-wrap--admin-user-monthly {
+    margin: 0 12px 20px;
+  }
+
+  .table--admin-user-monthly thead th,
+  .table--admin-user-monthly tbody td {
+    height: 44px;
+    font-size: 13px;
+  }
+}
