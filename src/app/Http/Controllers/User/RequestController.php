@@ -7,19 +7,19 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use App\Models\Attendance;
-use App\Models\StampCorrectionRequest;
+use App\Models\CorrectionRequest;
 
 class RequestController extends Controller
 {
     /**
      * 申請一覧（承認待ち / 承認済み）
-     * GET /stamp_correction_request/list  → name: request.list
+     * GET correction_request/list  → name: request.list
      */
     public function index(Request $request)
     {
         $tab = $request->query('tab', 'pending'); // 'pending' | 'approved'
 
-        $requests = StampCorrectionRequest::with(['attendance', 'user'])
+        $requests = CorrectionRequest::with(['attendance', 'user'])
             ->where('user_id', $request->user()->id)
             ->when($tab === 'pending', function ($q) {
                 $q->where('status', 'pending');
@@ -62,7 +62,7 @@ class RequestController extends Controller
             ->findOrFail($attendanceId);
 
         // 既に承認待ちがある場合はブロック（detail.blade.php 側のメッセージと連携）
-        $hasPending = StampCorrectionRequest::where('user_id', $request->user()->id)
+        $hasPending = CorrectionRequest::where('user_id', $request->user()->id)
             ->where('attendance_id', $attendance->id)
             ->where('status', 'pending')
             ->exists();
@@ -111,7 +111,7 @@ class RequestController extends Controller
             'note'      => $request->input('note'),
         ];
 
-        StampCorrectionRequest::create([
+        CorrectionRequest::create([
             'user_id'       => $request->user()->id,
             'attendance_id' => $attendance->id,
             'status'        => 'pending',            // 初期は承認待ち

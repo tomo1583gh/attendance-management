@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\CorrectionRequest;
 
 class Attendance extends Model
 {
@@ -45,6 +46,6 @@ class Attendance extends Model
 
     public function correctionRequests()
     {
-        return $this->hasMany(StampCorrectionRequest::class);
+        return $this->hasMany(CorrectionRequest::class);
     }
 }
