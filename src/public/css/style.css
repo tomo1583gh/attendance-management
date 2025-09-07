@@ -179,8 +179,8 @@ body {
 }
 
 .btn--primary {
-  background: var(--white);
-  color: var(--brack);
+  background: var(--black);
+  color: var(--white);
 }
 
 .btn--ghost {
@@ -237,6 +237,7 @@ body {
   margin-top: 28px;
   font-weight: 700;
   font-size: 18px;
+  text-align: center;
 }
 
 /* =========================================
