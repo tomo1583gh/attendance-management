@@ -56,7 +56,7 @@
 
   @if ($status === 'after')
     {{-- 退勤後 --}}
-    <p class="after-message">お疲れ様でした。</p>
+    <p class="after-message">本日の業務は終了です。</p>
   @endif
 
   {{-- エラーメッセージやフラッシュ --}}

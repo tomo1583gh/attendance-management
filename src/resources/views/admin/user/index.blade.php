@@ -4,7 +4,7 @@
 @section('state', 'before')
 
 @section('content')
-  <h1 class="section-title section-title--lg">スタッフ一覧</h1>
+  <h1 class="section-title">スタッフ一覧</h1>
 
   <div class="card table-wrap table-wrap--admin-users">
     <table class="table table--admin-users">

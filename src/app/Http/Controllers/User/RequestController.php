@@ -67,7 +67,9 @@ class RequestController extends Controller
             ->where('status', 'pending')
             ->exists();
         if ($hasPending) {
-            return back()->with('pending', true);
+            return redirect()
+                ->route('attendance.detail', $attendance->id)
+                ->with('pending', true);
         }
 
         // 入力バリデーション（最低限）
@@ -119,7 +121,9 @@ class RequestController extends Controller
             'payload'       => json_encode($payload, JSON_UNESCAPED_UNICODE),
         ]);
 
-        return redirect()->route('request.list', ['tab' => 'pending'])
+        return redirect()
+            ->route('attendance.detail', $attendance->id)
+            ->with('pending', true)
             ->with('status', '修正申請を送信しました');
     }
 }

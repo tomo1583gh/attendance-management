@@ -25,14 +25,16 @@
     $b2e = $break2 && $break2->end_at   ? Carbon::parse($break2->end_at)->format('H:i')   : '';
 
     $userName = $attendance->user->name ?? auth()->user()->name ?? '';
+
+    // 承認待ち判定（セッション or DB）
+  $isPending = (session('pending') === true) || ($hasPending ?? false);
   @endphp
 
-  {{-- ★ 承認待ち表示（初期は非表示、クリック時に表示） --}}
-  <p class="pending-notice {{ session('pending') ? 'is-visible' : '' }}">
-    承認待ちのため修正はできません。
-  </p>
-
-  <form method="POST" action="{{ route('request.store', $attendance->id) }}" class="detail-form" id="detailForm">
+  <form method="POST" 
+        action="{{ route('request.store', $attendance->id) }}" 
+        class="detail-form" 
+        id="detailForm"
+        @if($isPending) aria-disabled="true" @endif>
     @csrf
 
     <div class="detail-card">
@@ -51,73 +53,83 @@
         </div>
       </div>
 
+      {{-- 出勤・退勤 --}}
       <div class="detail-row">
         <div class="detail-label">出勤・退勤</div>
         <div class="detail-field">
-          <div class="time-pair">
-            <input type="time" name="clock_in"  value="{{ old('clock_in',  $in)  }}" class="time-input">
+          @if($isPending)
+            <span class="detail-text">{{ $in ?: '—' }}</span>
             <span class="tilde">〜</span>
-            <input type="time" name="clock_out" value="{{ old('clock_out', $out) }}" class="time-input">
-          </div>
+            <span class="detail-text">{{ $out ?: '—' }}</span>
+          @else
+            <div class="time-pair">
+              <input type="time" name="clock_in"  value="{{ old('clock_in',  $in)  }}" class="time-input">
+              <span class="tilde">〜</span>
+              <input type="time" name="clock_out" value="{{ old('clock_out', $out) }}" class="time-input">
+            </div>
+          @endif
         </div>
       </div>
 
+      {{-- 休憩 --}}
       <div class="detail-row">
         <div class="detail-label">休憩</div>
         <div class="detail-field">
-          <div class="time-pair">
-            <input type="time" name="breaks[0][start]" value="{{ old('breaks.0.start', $b1s) }}" class="time-input">
+          @if($isPending)
+            <span class="detail-text">{{ $b1s ?: '—' }}</span>
             <span class="tilde">〜</span>
-            <input type="time" name="breaks[0][end]"   value="{{ old('breaks.0.end',   $b1e) }}" class="time-input">
-          </div>
+            <span class="detail-text">{{ $b1e ?: '—' }}</span>
+          @else
+            <div class="time-pair">
+              <input type="time" name="breaks[0][start]" value="{{ old('breaks.0.start', $b1s) }}" class="time-input">
+              <span class="tilde">〜</span>
+              <input type="time" name="breaks[0][end]"   value="{{ old('breaks.0.end',   $b1e) }}" class="time-input">
+            </div>
+          @endif
         </div>
       </div>
 
+      {{-- 休憩2 --}}
       <div class="detail-row">
         <div class="detail-label">休憩2</div>
         <div class="detail-field">
-          <div class="time-pair">
-            <input type="time" name="breaks[1][start]" value="{{ old('breaks.1.start', $b2s) }}" class="time-input">
+          @if($isPending)
+            <span class="detail-text">{{ $b2s ?: '—' }}</span>
             <span class="tilde">〜</span>
-            <input type="time" name="breaks[1][end]"   value="{{ old('breaks.1.end',   $b2e) }}" class="time-input">
-          </div>
+            <span class="detail-text">{{ $b2e ?: '—' }}</span>
+          @else
+            <div class="time-pair">
+              <input type="time" name="breaks[1][start]" value="{{ old('breaks.1.start', $b2s) }}" class="time-input">
+              <span class="tilde">〜</span>
+              <input type="time" name="breaks[1][end]"   value="{{ old('breaks.1.end',   $b2e) }}" class="time-input">
+            </div>
+          @endif
         </div>
       </div>
-
+      
+      {{-- 備考 --}}
       <div class="detail-row">
         <div class="detail-label">備考</div>
         <div class="detail-field">
-          <input type="text" name="note" value="{{ old('note', $attendance->note ?? '') }}" class="note-input">
+          @if($isPending)
+            <span class="detail-text">{{ $attendance->note ?: '—' }}</span>
+          @else
+            <input type="text" name="note" value="{{ old('note', $attendance->note ?? '') }}" class="note-input">
+          @endif
+        </div>
         </div>
       </div>
-    </div>
 
-    <div class="detail-actions">
-      {{-- クリック時、承認待ちなら送信せずメッセージ表示に切替 --}}
-      <button type="submit"
-              id="btn-correct"
-              class="btn-detail"
-              data-is-pending="{{ $hasPending ? 1 : 0 }}">
-        修正
-      </button>
-    </div>
+
+    @if($isPending)
+      <div class="detail-footer">
+        <p class="pending-note" role="alert">※ 承認待ちのため修正はできません。</p>
+    @endif
+
+    @unless($isPending)
+      <div class="detail-actions">
+        <button type="submit" id="btn-correct" class="btn-detail">修正</button>
+      </div>
+    @endunless
   </form>
-
-  {{-- フロント即時切替用の最小限JS --}}
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      const btn = document.getElementById('btn-correct');
-      const msg = document.querySelector('.pending-notice');
-      const form = document.getElementById('detailForm');
-
-      if (!btn || !msg || !form) return;
-
-      btn.addEventListener('click', function (e) {
-        if (this.dataset.isPending === '1') {
-          e.preventDefault();                // 送信させない
-          msg.classList.add('is-visible');   // メッセージを表示
-        }
-      });
-    });
-  </script>
 @endsection

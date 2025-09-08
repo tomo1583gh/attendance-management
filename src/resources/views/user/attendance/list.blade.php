@@ -1,22 +1,24 @@
 @extends('layouts.app')
 
 @section('title', '勤怠一覧')
-@section('state', 'before') {{-- レイアウトのクラス用（見た目だけなので固定でOK） --}}
+@section('state', 'before')
 
 @section('content')
-  {{-- タイトル（左に細いバー） --}}
+  {{-- タイトル --}}
   <h1 class="section-title">勤怠一覧</h1>
 
   {{-- 月切替：前月 / YYYY/MM / 翌月 --}}
-  <div class="month-switch">
-    <a class="month-btn" href="{{ route('attendance.list', ['month' => $prevMonth]) }}">← 前月</a>
+  <div class="month-switch-area">
+    <div class="month-switch">
+      <a class="month-btn" href="{{ route('attendance.list', ['month' => $prevMonth]) }}">← 前月</a>
 
-    <div class="month-display">
-      <span aria-hidden="true">📅</span>
-      <span>{{ $currentYm }}</span> {{-- 例: 2023/06 --}}
+      <div class="month-display">
+        <span aria-hidden="true">📅</span>
+        <span>{{ $currentYm }}</span>
+      </div>
+
+      <a class="month-btn" href="{{ route('attendance.list', ['month' => $nextMonth]) }}">翌月 →</a>
     </div>
-
-    <a class="month-btn" href="{{ route('attendance.list', ['month' => $nextMonth]) }}">翌月 →</a>
   </div>
 
   {{-- 一覧テーブル --}}

@@ -11,10 +11,12 @@
     $centerDate = $d->format('Y/m/d');
   @endphp
 
-  <h1 class="section-title section-title--lg">{{ $heading }}</h1>
+  <h1 class="section-title">{{ $heading }}</h1>
 
-  <div class="day-switch">
-    <a class="day-nav day-nav--prev"
+  {{-- 日切替：前日 / YYYY/MM/dd / 翌日 --}}
+  <div class="day-switch-area">
+    <div class="day-switch">
+      <a class="day-btn"
        href="{{ route('admin.attendance.daily', ['date' => $prevDate]) }}">← 前日</a>
 
     <div class="day-display">
@@ -22,12 +24,13 @@
       <span class="day-display__text">{{ $centerDate }}</span>
     </div>
 
-    <a class="day-nav day-nav--next"
+    <a class="day-btn"
        href="{{ route('admin.attendance.daily', ['date' => $nextDate]) }}">翌日 →</a>
+    </div>
   </div>
 
   <div class="card table-wrap table-wrap--admin-daily">
-    <table class="table table--admin-daily">
+    <table class="table table--admin-attend">
       <thead>
         <tr>
           <th>名前</th>
