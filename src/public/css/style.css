@@ -260,7 +260,7 @@ body {
 }
 
 /* 勤怠一覧（user） */
-/* === 一覧タイトル（左バー付き） === */
+/* === 一覧タイトル === */
 .section-title {
   display: flex;
   align-items: center;
@@ -375,7 +375,7 @@ body {
   color: #9ca3af;
 }
 
-/* 勤怠詳細画面 */
+/* 勤怠詳細画面(user) */
 /* ===== 勤怠詳細（カード/行レイアウト） ===== */
 .detail-card {
   max-width: 760px;
@@ -556,7 +556,7 @@ body {
   align-items: center;
   max-width: 760px;
   margin: 0 auto 14px;
-  border-bottom: 1px solid #d1d5db;
+  border-bottom: 1px solid #000000;
   padding: 0 4px;
 }
 
@@ -679,6 +679,7 @@ body {
   padding: 0;
 }
 
+/* 勤怠一覧画面（admin） */
 /* ===== 管理者：日次テーブル幅・列幅 ===== */
 .table-wrap--admin-daily {
   max-width: 760px;
@@ -736,26 +737,6 @@ body {
 }
 
 /* 勤怠詳細（admin） */
-/* ページタイトル */
-.page-title {
-  font-size: 24px;
-  font-weight: 700;
-  margin: 24px 0 16px;
-  position: relative;
-  padding-left: 16px;
-}
-
-.page-title::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 4px;
-  width: 6px;
-  height: 24px;
-  background: #111;
-  border-radius: 2px;
-}
-
 /* アラート */
 .alert-error {
   background: #ffecec;
@@ -790,18 +771,8 @@ body {
   border: 1px solid #eee;
 }
 
-/* 行 */
-.detail-row {
-  display: grid;
-  grid-template-columns: 200px 1fr;
-  align-items: center;
-  border-top: 1px solid #eee;
-  background: #fff;
-  min-height: 72px;
-}
-
-.detail-row.header {
-  border-top: none;
+.detail-row:last-child {
+  border-bottom: none;
 }
 
 .detail-col.label {
@@ -866,31 +837,6 @@ body {
   font-size: 16px;
   resize: vertical;
   background: #fff;
-}
-
-/* ボタン */
-.detail-actions {
-  display: flex;
-  justify-content: center;
-}
-
-.btn-primary {
-  display: inline-block;
-  min-width: 140px;
-  height: 44px;
-  padding: 0 20px;
-  border: none;
-  border-radius: 8px;
-  background: #121212;
-  color: #fff;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  cursor: pointer;
-  margin: 24px auto 0;
-}
-
-.btn-primary:hover {
-  opacity: 0.9;
 }
 
 /* レスポンシブ（PC幅でも崩れない前提、タブレット対応） */
@@ -1176,40 +1122,13 @@ body {
 
 /* 修正申請承認画面（admin） */
 
-.detail-card {
-  background: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 0 0 1px #ececec inset;
-  max-width: 760px;
-  margin: 0 auto;
-  overflow: hidden;
-}
 
-.detail-row {
-  display: grid;
-  grid-template-columns: 180px 1fr;
-  gap: 0;
-  align-items: center;
-  border-bottom: 1px solid #eeeeee;
-  min-height: 68px;
-  padding: 18px 20px;
-  font-size: 14px;
-}
 
-.detail-row:last-child {
-  border-bottom: none;
-}
 
-.detail-label {
-  color: #777777;
-  letter-spacing: 0.08em;
-}
 
-.detail-value {
-  text-align: center;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-}
+
+
+
 
 .detail-gap {
   display: inline-block;
@@ -1224,29 +1143,6 @@ body {
 .memo-row .detail-value {
   font-weight: 500;
   letter-spacing: 0.06em;
-}
-
-.detail-actions {
-  max-width: 760px;
-  margin: 18px auto 0;
-  display: flex;
-  justify-content: flex-end;
-}
-
-.btn-primary {
-  display: inline-block;
-  padding: 12px 36px;
-  background: #000000;
-  color: #ffffff;
-  border: none;
-  border-radius: 10px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  cursor: pointer;
-}
-
-.btn-primary:hover {
-  opacity: 0.9;
 }
 
 .btn-disabled {

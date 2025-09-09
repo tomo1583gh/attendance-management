@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="container">
-  <h1 class="page-title">勤怠詳細</h1>
+  <h1 class="section-title">勤怠詳細</h1>
 
   @if ($errors->any())
     <div class="alert-error" role="alert">
@@ -26,21 +26,19 @@
     $b1 = $attendance->breaks->get(1);
   @endphp
 
-  <form action="{{ route('admin.attendance.update', ['id' => $attendance->id]) }}" method="post" class="detail-form">
+  <form action="{{ route('admin.attendances.update', ['id' => $attendance->id]) }}" method="post" class="detail-form">
     @csrf
     @method('PUT')
 
     <div class="detail-card">
-      <div class="detail-row header">
-        <div class="detail-col label">名前</div>
-        <div class="detail-col value">
-          {{ $attendance->user->last_name ?? '' }}　{{ $attendance->user->first_name ?? '' }}
-        </div>
+      <div class="detail-row">
+        <div class="detail-label">名前</div>
+        <div class="detail-field"><span class="detail-text">{{ optional($attendance->user)->name }}</span></div>
       </div>
 
       <div class="detail-row">
-        <div class="detail-col label">日付</div>
-        <div class="detail-col value date-split">
+        <div class="detail-label">日付</div>
+        <div class="detail-field date-split">
           <span class="date-year">{{ optional($attendance->work_date)->format('Y') }}年</span>
           <span class="date-monthday">{{ optional($attendance->work_date)->format('n月j日') }}</span>
         </div>
@@ -48,8 +46,8 @@
 
       {{-- 出勤・退勤（*_at を参照） --}}
       <div class="detail-row">
-        <div class="detail-col label">出勤・退勤</div>
-        <div class="detail-col value time-range">
+        <div class="detail-label">出勤・退勤</div>
+        <div class="detail-field time-range">
           <input type="time" name="clock_in"
                  value="{{ old('clock_in', optional($attendance->clock_in_at)->format('H:i')) }}"
                  class="input-time">
@@ -62,8 +60,8 @@
 
       {{-- 休憩1（start_at / end_at） --}}
       <div class="detail-row">
-        <div class="detail-col label">休憩</div>
-        <div class="detail-col value time-range">
+        <div class="detail-label">休憩</div>
+        <div class="detail-field time-range">
           <input type="time" name="breaks[0][start]"
                  value="{{ old('breaks.0.start', optional($b0?->start_at)->format('H:i')) }}"
                  class="input-time">
@@ -76,8 +74,8 @@
 
       {{-- 休憩2（追加フィールド） --}}
       <div class="detail-row">
-        <div class="detail-col label">休憩2</div>
-        <div class="detail-col value time-range">
+        <div class="detail-label">休憩2</div>
+        <div class="detail-field time-range">
           <input type="time" name="breaks[1][start]"
                  value="{{ old('breaks.1.start', optional($b1?->start_at)->format('H:i')) }}"
                  class="input-time">
@@ -89,15 +87,15 @@
       </div>
 
       <div class="detail-row">
-        <div class="detail-col label">備考</div>
-        <div class="detail-col value">
+        <div class="detail-label">備考</div>
+        <div class="detail-field">
           <textarea name="note" class="input-note" rows="3" placeholder="備考を入力してください">{{ old('note', $attendance->note) }}</textarea>
         </div>
       </div>
     </div>
 
     <div class="detail-actions">
-      <button type="submit" class="btn-primary">修正</button>
+      <button type="submit" class="btn-detail">修正</button>
     </div>
   </form>
 </div>

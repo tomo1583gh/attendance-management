@@ -49,7 +49,7 @@
     <div class="btn-primary-wrap">
       <form method="POST" action="{{ route('attendance.breakOut') }}">
         @csrf
-        <button type="submit" class="btn btn--primary">休憩戻</button>
+        <button type="submit" class="btn btn--ghost">休憩戻</button>
       </form>
     </div>
   @endif

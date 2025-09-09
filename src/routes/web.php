@@ -68,26 +68,26 @@ Route::middleware(['auth', 'verified'])->group(function () {
 Route::prefix('admin')->name('admin.')->middleware('auth:admin')->group(function () {
 
     // 日次勤怠一覧 / 詳細
-    Route::get('/attendance', [AAttendance::class, 'daily'])
-        -> name('attendance.daily');
-    Route::get('/attendance/{id}', [AAttendance::class, 'show'])
-        ->name('attendance.show');
-    Route::put('/attendance/{id}', [AAttendance::class, 'update'])
-        ->name('attendance.update');   
+    Route::get('/attendances', [AAttendance::class, 'daily'])
+        -> name('attendances.daily');
+    Route::get('/attendances/{id}', [AAttendance::class, 'show'])
+        ->name('attendances.show');
+    Route::put('/attendances/{id}', [AAttendance::class, 'update'])
+        ->name('attendances.update');   
 
     // スタッフ一覧 / スタッフ別月次 / CSV出力
-    Route::get('/user', [AUser::class, 'index'])
-        ->name('user.index');
-    Route::get('/user/{user}/attendances', [AUser::class, 'monthly'])
-        ->name('user.attendances.monthly');
-    Route::get('/user/{user}/attendances/csv', [AUser::class, 'exportCsv'])
-        ->name('user.attendances.csv');
+    Route::get('/users', [AUser::class, 'index'])
+        ->name('users.index');
+    Route::get('/users/{user}/attendances', [AUser::class, 'monthly'])
+        ->name('users.attendances.monthly');
+    Route::get('/users/{user}/attendances/csv', [AUser::class, 'exportCsv'])
+        ->name('users.attendances.csv');
 
     // 申請一覧 / 詳細 / 承認
-    Route::get('/request', [ARequest::class, 'index'])
-        ->name('request.index');
-    Route::get('/request/{id}', [ARequest::class, 'show'])
-        ->name('request.show');
-    Route::post('/request/{id}/approve', [ARequest::class, 'approve'])
-        ->name('request.approve');
+    Route::get('/requests', [ARequest::class, 'index'])
+        ->name('requests.index');
+    Route::get('/requests/{id}', [ARequest::class, 'show'])
+        ->name('requests.show');
+    Route::post('/requests/{id}/approve', [ARequest::class, 'approve'])
+        ->name('requests.approve');
 });

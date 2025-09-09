@@ -75,7 +75,7 @@ class AttendanceController extends Controller
         $nextDate = $day->copy()->addDay()->toDateString();
 
         // ビューは daily.blade.php に変更済み
-        return view('admin.attendance.daily', compact('date', 'prevDate', 'nextDate', 'rows'));
+        return view('admin.attendances.daily', compact('date', 'prevDate', 'nextDate', 'rows'));
     }
 
     /**
@@ -84,7 +84,7 @@ class AttendanceController extends Controller
     public function show($id)
     {
         $attendance = Attendance::with(['user', 'breaks'])->findOrFail($id);
-        return view('admin.attendance.detail', compact('attendance'));
+        return view('admin.attendances.detail', compact('attendance'));
     }
 
     private function minutesToHhmm(int $minutes): string

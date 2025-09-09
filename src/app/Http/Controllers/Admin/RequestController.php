@@ -32,7 +32,7 @@ class RequestController extends Controller
             ];
         });
 
-        return view('admin.request.index', compact('rows'));
+        return view('admin.requests.index', compact('rows'));
   }
 
     public function show(string $id)
@@ -55,7 +55,7 @@ class RequestController extends Controller
             'approved'     => $requestItem->approved, // boolean
         ];
 
-        return view('admin.request.show', ['requestItem' => $vm]);
+        return view('admin.requests.show', ['requestItem' => $vm]);
     }
 
     public function approve(string $id)
@@ -73,7 +73,7 @@ class RequestController extends Controller
         }
 
         return redirect()
-            ->route('admin.request.show', ['id' => $requestItem->id])
+            ->route('admin.requests.show', ['id' => $requestItem->id])
             ->with('status', 'approved');
     }
 }

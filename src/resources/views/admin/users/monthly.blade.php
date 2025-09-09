@@ -10,7 +10,7 @@
   {{-- 月切替：前月 / YYYY/MM / 翌月（クラス名も流用） --}}
   <div class="month-switch">
     <a class="month-btn"
-       href="{{ route('admin.user.attendances.monthly', ['user' => $user->id, 'month' => $prevMonth]) }}">← 前月</a>
+       href="{{ route('admin.users.attendances.monthly', ['user' => $user->id, 'month' => $prevMonth]) }}">← 前月</a>
 
     <div class="month-display">
       <span aria-hidden="true">📅</span>
@@ -18,7 +18,7 @@
     </div>
 
     <a class="month-btn"
-       href="{{ route('admin.user.attendances.monthly', ['user' => $user->id, 'month' => $nextMonth]) }}">翌月 →</a>
+       href="{{ route('admin.users.attendances.monthly', ['user' => $user->id, 'month' => $nextMonth]) }}">翌月 →</a>
   </div>
 
   {{-- 一覧テーブル（クラス名を共通化） --}}
@@ -49,7 +49,7 @@
             <td>
               @if(!empty($row->attendance_id))
                 <a class="link-detail"
-                   href="{{ route('admin.attendance.show', ['id' => $row->attendance_id]) }}">詳細</a>
+                   href="{{ route('admin.attendances.show', ['id' => $row->attendance_id]) }}">詳細</a>
               @else
                 <span class="link-detail" style="opacity:.5;cursor:not-allowed;">詳細</span>
               @endif
@@ -67,6 +67,6 @@
   {{-- CSV出力（共通スタイル + 追加クラス） --}}
   <div class="footer-actions footer-actions--right">
     <a class="btn-outline"
-       href="{{ route('admin.user.attendances.csv', ['user' => $user->id, 'month' => $month]) }}">CSV出力</a>
+       href="{{ route('admin.users.attendances.csv', ['user' => $user->id, 'month' => $month]) }}">CSV出力</a>
   </div>
 @endsection

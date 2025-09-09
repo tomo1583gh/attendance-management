@@ -67,7 +67,7 @@
   {{-- ボタン領域（右下） --}}
   <div class="detail-actions">
     @if(!$isApproved)
-      <form action="{{ route('admin.request.approve', ['id' => $requestItem->id]) }}" method="POST" onsubmit="return confirm('この申請を承認しますか？');">
+      <form action="{{ route('admin.requests.approve', ['id' => $requestItem->id]) }}" method="POST" onsubmit="return confirm('この申請を承認しますか？');">
         @csrf
         <button type="submit" class="btn-primary">承認</button>
       </form>

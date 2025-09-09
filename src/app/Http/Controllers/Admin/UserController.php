@@ -16,7 +16,7 @@ class UserController extends Controller
         $users = User::orderBy('name')
             ->get(['id', 'name', 'email']);
 
-        return view('admin.user.index', compact('users'));
+        return view('admin.users.index', compact('users'));
     }
 
     public function monthly(User $user)
@@ -79,7 +79,7 @@ class UserController extends Controller
         $titleName = $user->name ?? 'ユーザー';
 
         // 一般側と同じ変数名でビューへ
-        return view('admin.user.monthly', [
+        return view('admin.users.monthly', [
             'user'       => $user,
             'titleName'  => $titleName,
             'currentYm'  => $monthStart->format('Y/m'),

@@ -14,7 +14,7 @@
         $isAdmin = Auth::guard('admin')->check() || request()->is('admin/*');
       @endphp
 
-      <a href="{{ $isAdmin ? route('admin.attendance.daily') : route('attendance.index') }}"
+      <a href="{{ $isAdmin ? route('admin.attendances.daily') : route('attendance.index') }}"
          class="brand" aria-label="ホーム">
         <img class="auth-logo" src="{{ asset('images/logo-image/logo.svg') }}" alt="COACHTECH">
       </a>
@@ -22,12 +22,12 @@
       <nav class="nav">
         @if ($isAdmin)
           {{-- 管理者ナビ --}}
-          <a href="{{ route('admin.attendance.daily') }}"
-             class="{{ request()->routeIs('admin.attendance.*') ? 'is-active' : '' }}">勤怠一覧</a>
-          <a href="{{ route('admin.user.index') }}"
-             class="{{ request()->routeIs('admin.user.*') ? 'is-active' : '' }}">スタッフ一覧</a>
-          <a href="{{ route('admin.request.index') }}"
-             class="{{ request()->routeIs('admin.request.*') ? 'is-active' : '' }}">申請一覧</a>
+          <a href="{{ route('admin.attendances.daily') }}"
+             class="{{ request()->routeIs('admin.attendances.*') ? 'is-active' : '' }}">勤怠一覧</a>
+          <a href="{{ route('admin.users.index') }}"
+             class="{{ request()->routeIs('admin.users.*') ? 'is-active' : '' }}">スタッフ一覧</a>
+          <a href="{{ route('admin.requests.index') }}"
+             class="{{ request()->routeIs('admin.requests.*') ? 'is-active' : '' }}">申請一覧</a>
 
           <form action="{{ route('admin.logout') }}" method="POST" style="display:inline;">
             @csrf

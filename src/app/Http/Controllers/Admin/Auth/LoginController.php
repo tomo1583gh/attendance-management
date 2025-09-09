@@ -20,7 +20,7 @@ class LoginController extends Controller
 
         if (Auth::guard('admin')->attempt($credentials)) {
             $request->session()->regenerate();
-            return redirect()->intended('/admin/attendance');
+            return redirect()->intended('/admin/attendances');
         }
 
         return back()->withErrors(['email' => 'ログイン情報が登録されていません']);

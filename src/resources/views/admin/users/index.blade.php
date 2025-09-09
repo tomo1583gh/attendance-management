@@ -24,7 +24,7 @@
             <td>{{ $user->email }}</td>
             <td>
               <a class="link-detail"
-                 href="{{ route('admin.user.attendances.monthly', ['user' => $user->id]) }}">
+                 href="{{ route('admin.users.attendances.monthly', ['user' => $user->id]) }}">
                 詳細
               </a>
             </td>
