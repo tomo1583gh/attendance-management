@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use App\Models\Attendance;
 use App\Models\BreakTime;
+use Illuminate\Support\Str;
 
 class AttendanceController extends Controller
 {
@@ -118,27 +119,62 @@ class AttendanceController extends Controller
 
     public function update(Request $request, $id)
     {
-        $attendance = Attendance::findOrFail($id);
+        // 関連も読むと後段の breaks 保存でN+1を避けられます
+        $attendance = Attendance::with('breaks')->findOrFail($id);
 
-        // 出勤時刻
+        $date = Carbon::parse($attendance->work_date); // 勤務日（Y-m-d）
+
+        // 出勤・退勤
         $attendance->clock_in_at = $request->filled('clock_in')
-            ? Carbon::createFromFormat('H:i', $request->clock_in)
-            ->setDateFrom($attendance->work_date)
+            ? $date->copy()->setTimeFromTimeString($request->input('clock_in'))  // 例: 09:00
             : null;
 
-        // 退勤時刻 ← ここが大事！
         $attendance->clock_out_at = $request->filled('clock_out')
-            ? Carbon::createFromFormat('H:i', $request->clock_out)
-            ->setDateFrom($attendance->work_date)
+            ? $date->copy()->setTimeFromTimeString($request->input('clock_out')) // 例: 18:00
             : null;
 
         // 備考
-        $attendance->note = $request->note;
+        $attendance->note = $request->input('note');
 
         $attendance->save();
 
+        // 休憩（最大2件想定）
+        $breakInputs = $request->input('breaks', []);  // [ ['start'=>'12:00','end'=>'13:00'], ... ]
+        $existing    = $attendance->breaks()->get();   // 既存コレクション
+
+        for ($i = 0; $i < 2; $i++) {
+            $payload = $breakInputs[$i] ?? ['start' => null, 'end' => null];
+
+            $start = !empty($payload['start'])
+                ? $date->copy()->setTimeFromTimeString($payload['start'])
+                : null;
+
+            $end = !empty($payload['end'])
+                ? $date->copy()->setTimeFromTimeString($payload['end'])
+                : null;
+
+            $model = $existing->get($i) ?? $attendance->breaks()->make();
+            $model->start_at = $start;
+            $model->end_at   = $end;
+            $attendance->breaks()->save($model);
+        }
+
+        // 返り先（一覧など）が渡っていれば優先
+        $to = $request->input('redirect_to');
+        if ($to && Str::startsWith($to, url('/'))) {
+            return redirect()->to($to)->with('status', '勤怠を更新しました');
+        }
+
+        // 次点：該当日の管理者日次一覧へ
+        if ($attendance->work_date) {
+            return redirect()
+                ->route('admin.attendances.daily', ['date' => $attendance->work_date->format('Y-m-d')])
+                ->with('status', '勤怠を更新しました');
+        }
+
+        // 最後の保険：詳細に留まる（※ ルート名は複数形）
         return redirect()
-            ->route('admin.attendance.show', ['id' => $attendance->id])
+            ->route('admin.attendances.show', ['id' => $attendance->id])
             ->with('status', '勤怠を更新しました');
-    }
+    } 
 }

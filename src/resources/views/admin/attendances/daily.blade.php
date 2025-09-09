@@ -52,7 +52,10 @@
             <td>
               @if(!empty($row->attendance_id))
                 <a class="link-detail"
-                   href="{{ route('admin.attendances.show', ['id' => $row->attendance_id]) }}">
+                   href="{{ route('admin.attendances.show', [
+                        'id' => $row->attendance_id,
+                        'return_to' => request()->fullUrl()
+                        ]) }}">
                   詳細
                 </a>
               @else
