@@ -19,13 +19,14 @@ class CorrectionRequest extends Model
         'status',           // 'pending' | 'approved'
 
         // 提案（修正案）
-        'proposed_clock_in_at',
-        'proposed_clock_out_at',
-        'proposed_breaks',  // JSON: [{start:'HH:MM', end:'HH:MM'}, …]
+        'proposed_clock_in_at' => 'datetime',
+        'proposed_clock_out_at' => 'datetime',
+        'proposed_breaks' => 'array',  // JSON: [{start:'HH:MM', end:'HH:MM'}, …]
 
         // 承認情報
         'approved_by',      // admins.id（nullable）
         'approved_at',
+        'payload',
     ];
 
     protected $casts = [
@@ -36,6 +37,8 @@ class CorrectionRequest extends Model
 
         // JSON
         'proposed_breaks'       => 'array',
+
+        'payload' => 'array',
     ];
 
     /**

@@ -52,3 +52,11 @@ php artisan optimize:clear
 exit
 php artisan optimize:clear
 exit
+php artisan optimize:clear
+php artisan make:model StampCorrectionRequest
+php artisan migrate:flesh:seed
+php artisan migrate:fresh --seed
+exit
+php artisan optimize:clear
+php artisan optimize:clear
+exit

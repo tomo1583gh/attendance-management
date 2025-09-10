@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use App\Models\User;
 use App\Models\Attendance;
+use Illuminate\Support\Str;
 
 class AttendanceController extends Controller
 {
@@ -92,5 +93,62 @@ class AttendanceController extends Controller
         $h = intdiv($minutes, 60);
         $m = $minutes % 60;
         return sprintf('%d:%02d', $h, $m);
+    }
+
+    public function update(Request $request, $id)
+    {
+        // 関連も読み込む（breaks更新でN+1回避）
+        $attendance = Attendance::with('breaks')->findOrFail($id);
+
+        $date = Carbon::parse($attendance->work_date); // 勤務日
+
+        // 出勤・退勤を勤務日の時刻として保存
+        $attendance->clock_in_at = $request->filled('clock_in')
+            ? $date->copy()->setTimeFromTimeString($request->input('clock_in'))
+            : null;
+
+        $attendance->clock_out_at = $request->filled('clock_out')
+            ? $date->copy()->setTimeFromTimeString($request->input('clock_out'))
+            : null;
+
+        // 備考
+        $attendance->note = $request->input('note');
+
+        $attendance->save();
+
+        // 休憩（最大2件を想定）
+        $breaksInput = $request->input('breaks', []); // [ ['start'=>'12:00','end'=>'13:00'], … ]
+        $existing    = $attendance->breaks()->get();
+
+        for ($i = 0; $i < 2; $i++) {
+            $startStr = data_get($breaksInput, "$i.start");
+            $endStr   = data_get($breaksInput, "$i.end");
+
+            $start = $startStr ? $date->copy()->setTimeFromTimeString($startStr) : null;
+            $end   = $endStr   ? $date->copy()->setTimeFromTimeString($endStr)   : null;
+
+            $model = $existing->get($i) ?? $attendance->breaks()->make();
+            $model->start_at = $start;
+            $model->end_at   = $end;
+            $attendance->breaks()->save($model);
+        }
+
+        // 返り先（一覧など）が来ていれば優先して戻す
+        $to = $request->input('redirect_to');
+        if ($to && Str::startsWith($to, url('/'))) {
+            return redirect()->to($to)->with('status', '勤怠を更新しました');
+        }
+
+        // なければ該当日の管理者日次一覧へ
+        if ($attendance->work_date) {
+            return redirect()
+                ->route('admin.attendances.daily', ['date' => $attendance->work_date->format('Y-m-d')])
+                ->with('status', '勤怠を更新しました');
+        }
+
+        // 最後の保険：詳細に戻る
+        return redirect()
+            ->route('admin.attendances.show', ['id' => $attendance->id])
+            ->with('status', '勤怠を更新しました');
     }
 }

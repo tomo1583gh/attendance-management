@@ -5,6 +5,7 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Models\Attendance;
 use App\Models\CorrectionRequest;
@@ -61,7 +62,7 @@ class RequestController extends Controller
         $attendance = Attendance::where('user_id', $request->user()->id)
             ->findOrFail($attendanceId);
 
-        // 既に承認待ちがある場合はブロック（detail.blade.php 側のメッセージと連携）
+        // 既に承認待ちがある場合はブロック
         $hasPending = CorrectionRequest::where('user_id', $request->user()->id)
             ->where('attendance_id', $attendance->id)
             ->where('status', 'pending')
@@ -74,26 +75,24 @@ class RequestController extends Controller
 
         // 入力バリデーション（最低限）
         $request->validate([
-            'clock_in'            => ['nullable', 'date_format:H:i'],
-            'clock_out'           => ['nullable', 'date_format:H:i'],
-            'breaks.*.start'      => ['nullable', 'date_format:H:i'],
-            'breaks.*.end'        => ['nullable', 'date_format:H:i'],
-            'note'                => ['nullable', 'string', 'max:255'],
+            'clock_in'       => ['nullable', 'date_format:H:i'],
+            'clock_out'      => ['nullable', 'date_format:H:i'],
+            'breaks'         => ['nullable', 'array'],
+            'breaks.*.start' => ['nullable', 'date_format:H:i'],
+            'breaks.*.end'   => ['nullable', 'date_format:H:i'],
+            'note'           => ['nullable', 'string', 'max:255'],
         ]);
 
-        // 相関チェック（要件に近いメッセージに）
-        $in  = $request->input('clock_in');
-        $out = $request->input('clock_out');
-        $breaks = $request->input('breaks', []);
+        // 相関チェック（要件のメッセージに合わせる）
+        $in     = $request->input('clock_in');
+        $out    = $request->input('clock_out');
+        $breaks = (array) $request->input('breaks', []);
 
-        // 出勤/退勤の整合
         if ($in && $out && $in > $out) {
             return back()->withErrors([
                 'clock_out' => '出勤時間もしくは退勤時間が不適切な値です',
             ])->withInput();
         }
-
-        // 休憩の整合
         foreach ($breaks as $b) {
             $bs = $b['start'] ?? null;
             $be = $b['end']   ?? null;
@@ -105,7 +104,31 @@ class RequestController extends Controller
             }
         }
 
-        // 申請データ作成（差分を payload(JSON) に格納）
+        // H:i を当日の datetime に変換（attendances に日付カラムがある前提）
+        $workDate = $attendance->work_date ?? $attendance->date ?? now();
+        $ymd = \Carbon\Carbon::parse($workDate)->format('Y-m-d');
+        $toDateTime = function (?string $hm) use ($ymd) {
+            if (!$hm) return null;
+            return \Carbon\Carbon::parse("{$ymd} {$hm}:00");
+        };
+
+        $proposedClockInAt  = $toDateTime($in);
+        $proposedClockOutAt = $toDateTime($out);
+
+        // breaks[0|1][start|end] → proposed_breaks へ正規化（JSON保存用に文字列化）
+        $proposedBreaks = [];
+        foreach ($breaks as $br) {
+            $s = $br['start'] ?? null;
+            $e = $br['end']   ?? null;
+            if ($s && $e) {
+                $proposedBreaks[] = [
+                    'start' => $toDateTime($s)->format('Y-m-d H:i:s'),
+                    'end'   => $toDateTime($e)->format('Y-m-d H:i:s'),
+                ];
+            }
+        }
+
+        // （任意）差分を payload にも残す
         $payload = [
             'clock_in'  => $in,
             'clock_out' => $out,
@@ -113,13 +136,18 @@ class RequestController extends Controller
             'note'      => $request->input('note'),
         ];
 
-        CorrectionRequest::create([
-            'user_id'       => $request->user()->id,
-            'attendance_id' => $attendance->id,
-            'status'        => 'pending',            // 初期は承認待ち
-            'reason'        => $request->input('note', ''), // スクショ上は備考=理由
-            'payload'       => json_encode($payload, JSON_UNESCAPED_UNICODE),
-        ]);
+        \DB::transaction(function () use ($request, $attendance, $proposedClockInAt, $proposedClockOutAt, $proposedBreaks, $payload) {
+            CorrectionRequest::create([
+                'user_id'                => $request->user()->id,
+                'attendance_id'          => $attendance->id,
+                'status'                 => 'pending',
+                'reason'                 => $request->input('note', ''),
+                'proposed_clock_in_at'   => $proposedClockInAt,      // ★ 追加
+                'proposed_clock_out_at'  => $proposedClockOutAt,     // ★ 追加
+                'proposed_breaks'        => $proposedBreaks,         // ★ 追加（JSON配列）
+                'payload'                => $payload,
+            ]);
+        });
 
         return redirect()
             ->route('attendance.detail', $attendance->id)

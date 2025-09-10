@@ -38,6 +38,8 @@ return new class extends Migration
             $table->foreignId('approved_by')->nullable()->constrained('admins')->nullOnDelete();
             $table->timestampTz('approved_at')->nullable();
 
+            $table->json('payload')->nullable();
+
             $table->timestamps();
 
             // よく使う検索キー
