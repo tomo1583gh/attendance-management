@@ -43,7 +43,7 @@ class RequestController extends Controller
 
     public function show(string $id)
     {
-        $req = CorrectionRequest::with(['user', 'attendance'/*, 'attendance.breaks'*/])->findOrFail($id);
+        $req = CorrectionRequest::with(['user', 'attendance', 'attendance.breaks'])->findOrFail($id);
         $att = $req->attendance;
 
         $fmt = function ($v, $f = 'H:i') {
@@ -55,40 +55,32 @@ class RequestController extends Controller
         $currentIn  = $fmt($att->clock_in_at  ?? $att->start_time);
         $currentOut = $fmt($att->clock_out_at ?? $att->end_time);
 
-        // 申請（提案）値
+        // 申請（提案）値：proposed_*がなければpaylodeを使う
+        $clockInRaw  = $req->proposed_clock_in_at  ?? ($req->payload['clock_in']  ?? null);
+        $clockOutRaw = $req->proposed_clock_out_at ?? ($req->payload['clock_out'] ?? null);
+
         $propIn  = $fmt($req->proposed_clock_in_at);
         $propOut = $fmt($req->proposed_clock_out_at);
 
-        // 申請側：休憩（proposed_breaks -> H:i に整形）
+        // ★ 休憩：proposed_breaks → 無ければ payload.breaks
+        $rawBreaks = is_array($req->proposed_breaks) ? $req->proposed_breaks : ($req->payload['breaks'] ?? []);
         $proposedBreaks = [];
-        if (is_array($req->proposed_breaks)) {
-            foreach ($req->proposed_breaks as $br) {
-                $startRaw = $br['start'] ?? ($br['break_start'] ?? null);
-                $endRaw   = $br['end']   ?? ($br['break_end']   ?? null);
-                $start = $startRaw ? Carbon::parse($startRaw)->format('H:i') : null;
-                $end   = $endRaw   ? Carbon::parse($endRaw)->format('H:i')   : null;
-                if (!$start && !$end) continue;
-                $proposedBreaks[] = (object)[
-                    'break_start' => $start,
-                    'break_end'   => $end,
-                ];
+        foreach ((array)$rawBreaks as $br) {
+            $startRaw = $br['start'] ?? ($br['break_start'] ?? null);
+            $endRaw   = $br['end']   ?? ($br['break_end']   ?? null);
+            $start = $startRaw ? Carbon::parse($startRaw)->format('H:i') : null;
+            $end   = $endRaw   ? Carbon::parse($endRaw)->format('H:i')   : null;
+            if ($start || $end) {
+                $proposedBreaks[] = (object)['break_start' => $start, 'break_end' => $end];
             }
         }
 
-        // ★現在側：休憩（attendance->breaks を H:i に整形）
         $currentBreaks = [];
-        if ($att) {
-            // カラム名の揺れに対応（start_at/end_at か break_start/break_end）
-            $rows = method_exists($att, 'breaks') ? $att->breaks()->get() : collect();
-            foreach ($rows as $row) {
-                $sRaw = $row->start_at ?? $row->break_start ?? null;
-                $eRaw = $row->end_at   ?? $row->break_end   ?? null;
-                $s = $sRaw ? Carbon::parse($sRaw)->format('H:i') : null;
-                $e = $eRaw ? Carbon::parse($eRaw)->format('H:i') : null;
-                if (!$s && !$e) continue;
+        if ($att && $att->relationLoaded('breaks')) {
+            foreach ($att->breaks as $row) {
                 $currentBreaks[] = (object)[
-                    'break_start' => $s,
-                    'break_end'   => $e,
+                    'break_start' => optional($row->start_at ?? $row->break_start)->format('H:i'),
+                    'break_end'   => optional($row->end_at   ?? $row->break_end)->format('H:i'),
                 ];
             }
         }
@@ -143,39 +135,59 @@ class RequestController extends Controller
         DB::transaction(function () use ($requestItem) {
             $attendance = $requestItem->attendance()->lockForUpdate()->firstOrFail();
 
-            // 出退勤の反映（nullはスキップ）
-            if (!is_null($requestItem->proposed_clock_in_at)) {
-                $attendance->clock_in_at = $requestItem->proposed_clock_in_at;
+            // 勤務日（H:i形式で来た場合に日付を補う）
+            $ymd = optional($attendance->work_date ?? $attendance->date)->format('Y-m-d') ?? now()->format('Y-m-d');
+
+            // 汎用：raw値 → Carbon（H:i なら Y-m-d を補完）
+            $toCarbon = function ($v) use ($ymd) {
+                if ($v === null || $v === '') return null;
+                if ($v instanceof \Carbon\Carbon) return $v;
+                $s = (string)$v;
+                if (preg_match('/^\d{1,2}:\d{2}$/', $s)) {
+                    $s = "{$ymd} {$s}:00";
+                }
+                return \Carbon\Carbon::parse($s);
+            };
+
+            // ★ 出退勤：proposed_* が無ければ payload からフォールバック
+            $inRaw  = $requestItem->proposed_clock_in_at  ?? ($requestItem->payload['clock_in']  ?? null);
+            $outRaw = $requestItem->proposed_clock_out_at ?? ($requestItem->payload['clock_out'] ?? null);
+
+            if ($in = $toCarbon($inRaw)) {
+                $attendance->clock_in_at = $in;
             }
-            if (!is_null($requestItem->proposed_clock_out_at)) {
-                $attendance->clock_out_at = $requestItem->proposed_clock_out_at;
+            if ($out = $toCarbon($outRaw)) {
+                $attendance->clock_out_at = $out;
             }
             if (!empty($requestItem->reason)) {
                 $attendance->note = $requestItem->reason;
             }
             $attendance->save();
 
-            // 休憩テーブルの入れ替え
-            if (is_array($requestItem->proposed_breaks)) {
-                BreakTime::where('attendance_id', $attendance->id)->delete();
+            // ★ 休憩：proposed_breaks が無ければ payload.breaks を使う
+            $rawBreaks = is_array($requestItem->proposed_breaks) && count($requestItem->proposed_breaks)
+                ? $requestItem->proposed_breaks
+                : (array)($requestItem->payload['breaks'] ?? []);
 
-                // work_date があるので日付+時刻に組み立て（DBがdatetime型なら推奨）
-                $date = $attendance->work_date ? $attendance->work_date->format('Y-m-d') : null;
+            // 既存休憩を入れ替え
+            \App\Models\BreakTime::where('attendance_id', $attendance->id)->delete();
 
-                foreach ($requestItem->proposed_breaks as $br) {
-                    if (empty($br['start']) || empty($br['end'])) continue;
+            foreach ($rawBreaks as $br) {
+                $s = $toCarbon($br['start'] ?? ($br['break_start'] ?? null));
+                $e = $toCarbon($br['end']   ?? ($br['break_end']   ?? null));
+                if (!$s || !$e) continue;
 
-                    BreakTime::create([
-                        'attendance_id' => $attendance->id,
-                        'break_start'   => $date ? "{$date} {$br['start']}:00" : $br['start'],
-                        'break_end'     => $date ? "{$date} {$br['end']}:00"   : $br['end'],
-                    ]);
-                }
+                \App\Models\BreakTime::create([
+                    'attendance_id' => $attendance->id,
+                    // ★ テーブル定義に合わせて start_at / end_at を使用
+                    'start_at'      => $s,
+                    'end_at'        => $e,
+                ]);
             }
 
-            // 申請側を承認済みに
+            // 承認済みへ
             $requestItem->status      = 'approved';
-            $requestItem->approved_by = Auth::guard('admin')->id();
+            $requestItem->approved_by = \Illuminate\Support\Facades\Auth::guard('admin')->id();
             $requestItem->approved_at = now();
             $requestItem->save();
         });
