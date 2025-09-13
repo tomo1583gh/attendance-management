@@ -8,17 +8,17 @@
   <h1 class="section-title">{{ $titleName }}さんの勤怠</h1>
 
   {{-- 月切替：前月 / YYYY/MM / 翌月（クラス名も流用） --}}
-  <div class="month-switch">
-    <a class="month-btn"
-       href="{{ route('admin.users.attendances.monthly', ['user' => $user->id, 'month' => $prevMonth]) }}">← 前月</a>
+  <div class="month-switch-area">
+    <div class="month-switch">
+      <a class="month-btn" href="{{ route('attendance.list', ['month' => $prevMonth]) }}">← 前月</a>
 
-    <div class="month-display">
-      <span aria-hidden="true">📅</span>
-      <span>{{ \Carbon\Carbon::createFromFormat('Y-m', $month)->format('Y/m') }}</span>
+      <div class="month-display">
+        <span aria-hidden="true">📅</span>
+        <span>{{ $currentYm }}</span>
+      </div>
+
+      <a class="month-btn" href="{{ route('attendance.list', ['month' => $nextMonth]) }}">翌月 →</a>
     </div>
-
-    <a class="month-btn"
-       href="{{ route('admin.users.attendances.monthly', ['user' => $user->id, 'month' => $nextMonth]) }}">翌月 →</a>
   </div>
 
   {{-- 一覧テーブル（クラス名を共通化） --}}
