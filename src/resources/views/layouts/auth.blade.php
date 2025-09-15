@@ -23,16 +23,6 @@
         <div class="auth-alert info">{{ session('status') }}</div>
       @endif
 
-      @if ($errors->any())
-        <div class="auth-alert danger">
-          <ul class="auth-errors">
-            @foreach ($errors->all() as $error)
-              <li>{{ $error }}</li>
-            @endforeach
-          </ul>
-        </div>
-      @endif
-
       @yield('content')
 
       <div class="auth-links">

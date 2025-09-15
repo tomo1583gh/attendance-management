@@ -65,3 +65,31 @@ php artisan view:clear
 php artisan view:clear
 php artisan optimize:clear
 exit
+php artisan make:request LoginRequest
+php artisan optimize:clear
+php artisan optimize:clear
+php artisan optimize:clear
+php artisan lang:publish
+hp artisan config:clear
+php artisan cache:clear
+php artisan view:clear
+php artisan optimize:clear
+php artisan optimize:clear
+php artisan optimize:clear
+php artisan make:request Auth/RegisterRequest
+php artisan make:request Auth/RegisterController.php
+php artisan make:controller Auth/RegidterControlloer.php
+php artisan optimize:clear
+exit
+composer dump-autoload
+php artisan route:clear
+php artisan config:clear
+php artisan cache:clear
+php artisan view:clear
+php artisan route:list | grep register
+php artisan route:list | grep register
+php -r "var_dump(class_exists('App\\\\Http\\\\Controllers\\\\Auth\\\\RegisterController'));"
+php artisan make:controller Auth/RegisterController
+php artisan route:list | grep register
+php artisan optimize:clear
+exit

@@ -8,6 +8,7 @@ use App\Http\Controllers\User\RequestController as URequest;
 use App\Http\Controllers\Admin\AttendanceController as AAttendance;
 use App\Http\Controllers\Admin\UserController as AUser;
 use App\Http\Controllers\Admin\RequestController as ARequest;
+use App\Http\Controllers\Auth\RegisterController;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,6 +25,9 @@ Route::redirect('/home', '/attendance');
 Route::redirect('/', '/login');
 Route::redirect('/admin', '/admin/login');
 
+Route::post('/register', [RegisterController::class, 'store'])
+    ->middleware('guest')
+    ->name('register');
 
 // 管理者　認証（ログイン/ログアウト）
 Route::prefix('admin')->name('admin.')->group(function () {
@@ -69,7 +73,7 @@ Route::prefix('admin')->name('admin.')->middleware('auth:admin')->group(function
 
     // 日次勤怠一覧 / 詳細
     Route::get('/attendances', [AAttendance::class, 'daily'])
-        -> name('attendances.daily');
+        ->name('attendances.daily');
     Route::get('/attendances/{id}', [AAttendance::class, 'show'])
         ->name('attendances.show');
     Route::put('/attendances/{id}', [AAttendance::class, 'update'])
