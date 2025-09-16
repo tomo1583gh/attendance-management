@@ -76,8 +76,10 @@
         <div class="detail-field time-range">
           @if($editable)
             <input type="time" name="clock_in"  value="{{ old('clock_in',  $in)  }}" class="input-time time-input">
+            @error('clock_in')  <p class="form-error">{{ $message }}</p> @enderror
             <span class="time-tilde tilde">〜</span>
             <input type="time" name="clock_out" value="{{ old('clock_out', $out) }}" class="input-time time-input">
+            @error('clock_out') <p class="form-error">{{ $message }}</p> @enderror
           @else
             <span class="detail-text">{{ $in  ?: '—' }}</span>
             <span class="time-tilde tilde">〜</span>
@@ -94,10 +96,9 @@
       @if($editable)
         <input type="hidden" name="breaks[{{ $i }}][id]" value="{{ $b['id'] ?? '' }}">
         <input type="time" name="breaks[{{ $i }}][start]" value="{{ $b['start'] ?? '' }}" class="input-time time-input">
+        @error("breaks.$i.start") <p class="form-error">{{ $message }}</p> @enderror
         <span class="time-tilde tilde">〜</span>
         <input type="time" name="breaks[{{ $i }}][end]"   value="{{ $b['end']   ?? '' }}" class="input-time time-input">
-
-        @error("breaks.$i.start") <p class="form-error">{{ $message }}</p> @enderror
         @error("breaks.$i.end")   <p class="form-error">{{ $message }}</p> @enderror
       @else
         <span class="detail-text">{{ ($b['start'] ?? '') ?: '—' }}</span>
@@ -113,9 +114,9 @@
   <div class="detail-label">休憩{{ $new + 1 }}</div>
   <div class="detail-field time-range">
     @if($editable)
-      <input type="time" name="breaks[{{ $new }}][start]" value="" class="input-time time-input">
+      <input type="time" name="breaks[{{ $new }}][start]" value="{{ old('breaks.'.$new.'.start', '') }}" class="input-time time-input">
       <span class="time-tilde tilde">〜</span>
-      <input type="time" name="breaks[{{ $new }}][end]"   value="" class="input-time time-input">
+      <input type="time" name="breaks[{{ $new }}][end]"   value="{{ old('breaks.'.$new.'.end',   '') }}" class="input-time time-input">
 
       @error("breaks.$new.start") <p class="form-error">{{ $message }}</p> @enderror
       @error("breaks.$new.end")   <p class="form-error">{{ $message }}</p> @enderror
@@ -130,9 +131,10 @@
       {{-- 備考 --}}
       <div class="detail-row">
         <div class="detail-label">備考</div>
-        <div class="detail-field">
+        <div class="detail-field stack">
           @if($editable)
             <textarea name="note" class="input-note note-input" rows="3" placeholder="備考を入力してください">{{ old('note', $attendance->note) }}</textarea>
+            @error('note') <p class="form-error">{{ $message }}</p> @enderror
           @else
             <span class="detail-text">{{ $attendance->note ?: '—' }}</span>
           @endif

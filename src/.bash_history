@@ -102,3 +102,13 @@ php artisan migrate:fresh --seed
 php artisan optimize:clear
 php artisan optimize:clear
 exit
+php artisan route:list | grep request.store
+php artisan route:list | grep attendance.detail.update
+exit
+php artisan make:request User AttendanceDetailRequest
+php artisan make:request User/AttendanceDetailRequest
+php artisan optimize:clear
+php artisan optimize:clear
+php artisan route:list | grep request.store
+php artisan optimize:clear
+exit

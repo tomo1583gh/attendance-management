@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Models\Attendance;
 use App\Models\CorrectionRequest;
+use App\Http\Requests\User\AttendanceDetailRequest;
 
 class RequestController extends Controller
 {
@@ -57,7 +58,7 @@ class RequestController extends Controller
      * 修正申請の登録
      * POST /attendance/{id}/request → name: request.store
      */
-    public function store(Request $request, $attendanceId)
+    public function store(AttendanceDetailRequest $request, $attendanceId)
     {
         $attendance = Attendance::where('user_id', $request->user()->id)
             ->findOrFail($attendanceId);
@@ -136,7 +137,7 @@ class RequestController extends Controller
             'note'      => $request->input('note'),
         ];
 
-        \DB::transaction(function () use ($request, $attendance, $proposedClockInAt, $proposedClockOutAt, $proposedBreaks, $payload) {
+        DB::transaction(function () use ($request, $attendance, $proposedClockInAt, $proposedClockOutAt, $proposedBreaks, $payload) {
             CorrectionRequest::create([
                 'user_id'                => $request->user()->id,
                 'attendance_id'          => $attendance->id,

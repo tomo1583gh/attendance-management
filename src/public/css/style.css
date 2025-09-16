@@ -546,6 +546,46 @@ body {
   /* 既存のままでOK（外側の .pending-footnote には影響しない） */
 }
 
+.form-error {
+  margin-top: 6px;
+  font-size: 14px;
+  color: #d93025;
+  display: block;
+}
+
+.detail-field.stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.detail-field.stack .form-error {
+  margin-top: 6px;
+}
+
+.note-input {
+  display: block;
+  width: 100%;
+}
+
+/* 出勤・退勤や休憩の行を折り返して、エラーは下段に回す */
+.time-range {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.time-range .form-error {
+  flex-basis: 100%;
+}
+
+/* テキストエリア直下のエラーも少し余白 */
+.input-note+.form-error,
+.note-input+.form-error {
+  margin-top: 6px;
+}
+
 /* レスポンシブ微調整 */
 @media (max-width: 640px) {
   .detail-row {
