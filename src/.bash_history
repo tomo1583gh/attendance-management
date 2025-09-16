@@ -93,3 +93,12 @@ php artisan make:controller Auth/RegisterController
 php artisan route:list | grep register
 php artisan optimize:clear
 exit
+php artisan route:list | grep email/verify
+php artisan optimize:clear
+php artisan make:migration create_attendance_breaks_table
+php artisan make:model AttendanceBreak
+php artisan optimize:clear
+php artisan migrate:fresh --seed
+php artisan optimize:clear
+php artisan optimize:clear
+exit

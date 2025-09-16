@@ -21,35 +21,34 @@
 <div class="container">
   <h1 class="section-title">勤怠詳細</h1>
 
-  @if ($errors->any())
-    <div class="alert-error" role="alert">
-      <ul>
-        @foreach ($errors->all() as $error)
-          <li>{{ $error }}</li>
-        @endforeach
-      </ul>
-    </div>
-  @endif
-
   @if (session('status'))
     <div class="alert-success" role="status">{{ session('status') }}</div>
   @endif
 
   @php
-    // 関連は Controller 側で with(['user','breaks']) 推奨
-    $b0  = $attendance->breaks->get(0);
-    $b1  = $attendance->breaks->get(1);
+  // 出退勤の表示用
+  $in  = optional($attendance->clock_in_at)->format('H:i');
+  $out = optional($attendance->clock_out_at)->format('H:i');
 
-    $in  = optional($attendance->clock_in_at)->format('H:i');
-    $out = optional($attendance->clock_out_at)->format('H:i');
+  $userName = optional($attendance->user)->name ?? (auth()->user()->name ?? '');
 
-    $b1s = optional($b0?->start_at)->format('H:i');
-    $b1e = optional($b0?->end_at)->format('H:i');
-    $b2s = optional($b1?->start_at)->format('H:i');
-    $b2e = optional($b1?->end_at)->format('H:i');
+  // Controller から $prefillBreaks, $nextIndex が来ていればそれを優先
+  // 無ければここで $attendance->breaks から配列化
+  $prefill = $prefillBreaks
+      ?? $attendance->breaks->map(function ($b) {
+            return [
+              'id'    => $b->id,
+              'start' => optional($b->start_at)->format('H:i'),
+              'end'   => optional($b->end_at)->format('H:i'),
+            ];
+         })->toArray();
 
-    $userName = optional($attendance->user)->name ?? (auth()->user()->name ?? '');
-  @endphp
+  // バリデーションで戻ったときは old() を優先
+  $rows = old('breaks', $prefill);
+
+  // “空1行”のインデックス
+  $new  = isset($nextIndex) ? $nextIndex : count($rows);
+@endphp
 
   <form action="{{ $action }}" method="post" class="detail-form" @if(!$editable) aria-disabled="true" @endif>
     @csrf
@@ -87,37 +86,46 @@
         </div>
       </div>
 
-      {{-- 休憩 --}}
-      <div class="detail-row">
-        <div class="detail-label">休憩</div>
-        <div class="detail-field time-range">
-          @if($editable)
-            <input type="time" name="breaks[0][start]" value="{{ old('breaks.0.start', $b1s) }}" class="input-time time-input">
-            <span class="time-tilde tilde">〜</span>
-            <input type="time" name="breaks[0][end]"   value="{{ old('breaks.0.end',   $b1e) }}" class="input-time time-input">
-          @else
-            <span class="detail-text">{{ $b1s ?: '—' }}</span>
-            <span class="time-tilde tilde">〜</span>
-            <span class="detail-text">{{ $b1e ?: '—' }}</span>
-          @endif
-        </div>
-      </div>
+      {{-- 休憩（可変行） --}}
+@foreach ($rows as $i => $b)
+  <div class="detail-row">
+    <div class="detail-label">休憩{{ $i + 1 }}</div>
+    <div class="detail-field time-range">
+      @if($editable)
+        <input type="hidden" name="breaks[{{ $i }}][id]" value="{{ $b['id'] ?? '' }}">
+        <input type="time" name="breaks[{{ $i }}][start]" value="{{ $b['start'] ?? '' }}" class="input-time time-input">
+        <span class="time-tilde tilde">〜</span>
+        <input type="time" name="breaks[{{ $i }}][end]"   value="{{ $b['end']   ?? '' }}" class="input-time time-input">
 
-      {{-- 休憩2 --}}
-      <div class="detail-row">
-        <div class="detail-label">休憩2</div>
-        <div class="detail-field time-range">
-          @if($editable)
-            <input type="time" name="breaks[1][start]" value="{{ old('breaks.1.start', $b2s) }}" class="input-time time-input">
-            <span class="time-tilde tilde">〜</span>
-            <input type="time" name="breaks[1][end]"   value="{{ old('breaks.1.end',   $b2e) }}" class="input-time time-input">
-          @else
-            <span class="detail-text">{{ $b2s ?: '—' }}</span>
-            <span class="time-tilde tilde">〜</span>
-            <span class="detail-text">{{ $b2e ?: '—' }}</span>
-          @endif
-        </div>
-      </div>
+        @error("breaks.$i.start") <p class="form-error">{{ $message }}</p> @enderror
+        @error("breaks.$i.end")   <p class="form-error">{{ $message }}</p> @enderror
+      @else
+        <span class="detail-text">{{ ($b['start'] ?? '') ?: '—' }}</span>
+        <span class="time-tilde tilde">〜</span>
+        <span class="detail-text">{{ ($b['end']   ?? '') ?: '—' }}</span>
+      @endif
+    </div>
+  </div>
+@endforeach
+
+{{-- 空1行（新規入力用） --}}
+<div class="detail-row">
+  <div class="detail-label">休憩{{ $new + 1 }}</div>
+  <div class="detail-field time-range">
+    @if($editable)
+      <input type="time" name="breaks[{{ $new }}][start]" value="" class="input-time time-input">
+      <span class="time-tilde tilde">〜</span>
+      <input type="time" name="breaks[{{ $new }}][end]"   value="" class="input-time time-input">
+
+      @error("breaks.$new.start") <p class="form-error">{{ $message }}</p> @enderror
+      @error("breaks.$new.end")   <p class="form-error">{{ $message }}</p> @enderror
+    @else
+      <span class="detail-text">—</span>
+      <span class="time-tilde tilde">〜</span>
+      <span class="detail-text">—</span>
+    @endif
+  </div>
+</div>
 
       {{-- 備考 --}}
       <div class="detail-row">

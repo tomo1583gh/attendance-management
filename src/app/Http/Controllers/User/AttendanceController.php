@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use App\Models\Attendance;
 use App\Models\BreakTime;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 class AttendanceController extends Controller
 {
@@ -70,14 +71,27 @@ class AttendanceController extends Controller
         abort_if(!$attendance->clock_in_at, 400, '出勤前は休憩できません');
         abort_if($attendance->clock_out_at, 400, '退勤後は休憩できません');
 
-        // 既に休憩中はNG
-        $onBreak = $attendance->breaks()->whereNull('end_at')->exists();
-        abort_if($onBreak, 400, '既に休憩中です');
+        DB::transaction(
+            function () use ($attendance) {
+                $onBreak = $attendance->breaks()
+                    ->whereNull('end_at')
+                    ->lockForUpdate()
+                    ->exists();
+                abort_if($onBreak, 400, '既に休憩中です');
 
-        BreakTime::create([
+                $nextOrder = (int) $attendance->breaks()->max('order_no') + 1;
+
+                $attendance->breaks()->create([
+                    'start_at' => now(),
+                    'order_no' => $nextOrder,
+                ]);
+            }
+        );
+
+        /* BreakTime::create([
             'attendance_id' => $attendance->id,
             'start_at'      => now(),
-        ]);
+        ]); */
 
         return redirect()->route('attendance.index')->with('status', '休憩に入りました');
     }
@@ -93,7 +107,11 @@ class AttendanceController extends Controller
         abort_if($attendance->clock_out_at, 400, '退勤後は休憩戻できません');
 
         // 未終了の休憩をクローズ
-        $break = $attendance->breaks()->whereNull('end_at')->latest('start_at')->firstOrFail();
+        $break = $attendance->breaks()
+            ->whereNull('end_at')
+            ->latest('start_at')
+            ->firstOrFail();
+
         $break->update(['end_at' => now()]);
 
         return redirect()->route('attendance.index')->with('status', '休憩から戻りました');

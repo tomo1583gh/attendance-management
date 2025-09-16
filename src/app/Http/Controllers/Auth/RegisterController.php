@@ -31,13 +31,14 @@ class RegisterController extends Controller
 
         event(new Registered($user));
 
+        Auth::login($user);
+
         // Fortify のメール認証を有効にしている場合は誘導画面へ
         if (Features::enabled(Features::emailVerification())) {
             return redirect()->route('verification.notice');
         }
 
         // 誘導を使わない場合はログイン→打刻画面へ
-        Auth::login($user);
         return redirect()->intended('/attendance');
     }
 }

@@ -16,7 +16,10 @@ return new class extends Migration
             $table->foreignId('attendance_id')->constrained('attendances')->cascadeOnDelete();
             $table->timestamp('start_at')->nullable();
             $table->timestamp('end_at')->nullable();
+            $table->unsignedInteger('order_no')->default(1);
             $table->timestamps();
+
+            $table->index(['attendance_id', 'order_no']);
         });
     }
 

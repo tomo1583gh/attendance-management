@@ -32,7 +32,8 @@ class Attendance extends Model
 
     public function breaks()
     {
-        return $this->hasMany(\App\Models\BreakTime::class, 'attendance_id');
+        return $this->hasMany(\App\Models\BreakTime::class)
+            ->orderBy('start_at');
     }
 
     public function getStatusAttribute(): string
