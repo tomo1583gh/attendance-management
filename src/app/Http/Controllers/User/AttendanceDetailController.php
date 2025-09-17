@@ -11,10 +11,14 @@ class AttendanceDetailController extends Controller
 {
     public function show($id)
     {
-        // 自分の勤怠のみ & 休憩は並び順でロード
+        // 自分の勤怠のみ & 休憩は「空行除外」+ 並び順でロード
         $attendance = Attendance::with(['breaks' => function ($q) {
-            // order_no を使っているなら ->orderBy('order_no')
-            $q->orderBy('start_at')->orderBy('id');
+            // ★両方NULLの休憩レコードは除外
+            $q->where(function ($q) {
+                $q->whereNotNull('start_at')->orWhereNotNull('end_at');
+            });
+            // ★order_no を使っているなら最優先
+            $q->orderBy('order_no')->orderBy('start_at')->orderBy('id');
         }, 'user'])
             ->where('user_id', auth()->id())
             ->findOrFail($id);
@@ -24,14 +28,18 @@ class AttendanceDetailController extends Controller
             ->where('status', 'pending')
             ->exists();
 
-        // Blade の old('breaks') と合う形に整形（既存件数ぶん）
-        $prefillBreaks = $attendance->breaks->map(function ($b) {
-            return [
-                'id'    => $b->id,
-                'start' => optional($b->start_at)->format('H:i'),
-                'end'   => optional($b->end_at)->format('H:i'),
-            ];
-        })->toArray();
+        // ★念のためコレクション側でも空行を除外→0,1,2... に詰め直す
+        $prefillBreaks = $attendance->breaks
+            ->filter(fn($b) => $b->start_at || $b->end_at)  // どちらか入っているものだけ
+            ->values()                                       // インデックス詰め
+            ->map(function ($b) {
+                return [
+                    'id'    => $b->id,
+                    'start' => optional($b->start_at)->format('H:i'),
+                    'end'   => optional($b->end_at)->format('H:i'),
+                ];
+            })
+            ->toArray();
 
         // “空1行”のインデックス（= 既存件数）
         $nextIndex = count($prefillBreaks);

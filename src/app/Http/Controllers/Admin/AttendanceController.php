@@ -9,6 +9,8 @@ use Carbon\CarbonPeriod;
 use App\Models\User;
 use App\Models\Attendance;
 use Illuminate\Support\Str;
+use App\Http\Requests\Admin\AttendanceDetailUpdateRequest;
+use Illuminate\Support\Facades\DB;
 
 class AttendanceController extends Controller
 {
@@ -95,58 +97,82 @@ class AttendanceController extends Controller
         return sprintf('%d:%02d', $h, $m);
     }
 
-    public function update(Request $request, $id)
+    public function update(AttendanceDetailUpdateRequest $request, $id)
     {
-        // 関連も読み込む（breaks更新でN+1回避）
         $attendance = Attendance::with('breaks')->findOrFail($id);
+        $date       = Carbon::parse($attendance->work_date); // 勤務日
+        $data       = $request->validated();                 // ← ここがポイント
 
-        $date = Carbon::parse($attendance->work_date); // 勤務日
+        // 時刻(H:i)を勤務日の Carbon にする小関数
+        $toDateTime = function (?string $hm) use ($date) {
+            if (!$hm) return null;
+            return $date->copy()->setTimeFromTimeString($hm); // "HH:MM"
+        };
 
-        // 出勤・退勤を勤務日の時刻として保存
-        $attendance->clock_in_at = $request->filled('clock_in')
-            ? $date->copy()->setTimeFromTimeString($request->input('clock_in'))
-            : null;
+        DB::transaction(function () use ($attendance, $data, $toDateTime) {
+            // 出退勤・備考
+            $attendance->update([
+                'clock_in_at'  => $toDateTime($data['clock_in']  ?? null),
+                'clock_out_at' => $toDateTime($data['clock_out'] ?? null),
+                'note'         => $data['note'] ?? null,
+            ]);
 
-        $attendance->clock_out_at = $request->filled('clock_out')
-            ? $date->copy()->setTimeFromTimeString($request->input('clock_out'))
-            : null;
+            // 休憩：既存は更新、空1行に入力があれば新規作成。未送信(削除扱い)は削除
+            $keepIds   = [];
+            $order     = 1;
+            $breakRows = $data['breaks'] ?? [];
 
-        // 備考
-        $attendance->note = $request->input('note');
+            foreach ($breakRows as $row) {
+                $id    = $row['id']   ?? null;
+                $start = $toDateTime($row['start'] ?? null);
+                $end   = $toDateTime($row['end']   ?? null);
 
-        $attendance->save();
+                // 既存更新 or 新規作成（どちらも order_no を揃える運用ならここで設定）
+                if ($id) {
+                        // ★両方空なら削除
+                        if (!$start && !$end) {
+                            $attendance->breaks()->whereKey($id)->delete();
+                            continue; // 次へ
+                        }
+                        $attendance->breaks()->whereKey($id)->update([
+                            'start_at' => $start,
+                            'end_at'   => $end,
+                            'order_no' => $order,
+                        ]);
+                        $keepIds[] = $id;
+                } else {
+                    // 空1行は未入力なら作らない
+                    if ($start || $end) {
+                        $b = $attendance->breaks()->create([
+                            'start_at' => $start,
+                            'end_at'   => $end,
+                            'order_no' => $order,
+                        ]);
+                        $keepIds[] = $b->id;
+                    }
+                }
+                $order++;
+            }
 
-        // 休憩（最大2件を想定）
-        $breaksInput = $request->input('breaks', []); // [ ['start'=>'12:00','end'=>'13:00'], … ]
-        $existing    = $attendance->breaks()->get();
+            // 送信されなかった既存休憩は削除（UIで行を消したケース想定）
+            if (count($keepIds)) {
+                $attendance->breaks()->whereNotIn('id', $keepIds)->delete();
+            } else {
+                // 1件も残さない場合は全削除
+                $attendance->breaks()->delete();
+            }
+        });
 
-        for ($i = 0; $i < 2; $i++) {
-            $startStr = data_get($breaksInput, "$i.start");
-            $endStr   = data_get($breaksInput, "$i.end");
-
-            $start = $startStr ? $date->copy()->setTimeFromTimeString($startStr) : null;
-            $end   = $endStr   ? $date->copy()->setTimeFromTimeString($endStr)   : null;
-
-            $model = $existing->get($i) ?? $attendance->breaks()->make();
-            $model->start_at = $start;
-            $model->end_at   = $end;
-            $attendance->breaks()->save($model);
-        }
-
-        // 返り先（一覧など）が来ていれば優先して戻す
+        // リダイレクト（既存ロジックを踏襲）
         $to = $request->input('redirect_to');
         if ($to && Str::startsWith($to, url('/'))) {
             return redirect()->to($to)->with('status', '勤怠を更新しました');
         }
-
-        // なければ該当日の管理者日次一覧へ
         if ($attendance->work_date) {
             return redirect()
                 ->route('admin.attendances.daily', ['date' => $attendance->work_date->format('Y-m-d')])
                 ->with('status', '勤怠を更新しました');
         }
-
-        // 最後の保険：詳細に戻る
         return redirect()
             ->route('admin.attendances.show', ['id' => $attendance->id])
             ->with('status', '勤怠を更新しました');

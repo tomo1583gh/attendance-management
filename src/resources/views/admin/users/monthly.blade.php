@@ -10,14 +10,14 @@
   {{-- 月切替：前月 / YYYY/MM / 翌月（クラス名も流用） --}}
   <div class="month-switch-area">
     <div class="month-switch">
-      <a class="month-btn" href="{{ route('attendance.list', ['month' => $prevMonth]) }}">← 前月</a>
+      <a class="month-btn" href="{{ route('admin.users.attendances.monthly', ['user' => $user->id, 'month' => $prevMonth]) }}">← 前月</a>
 
       <div class="month-display">
         <span aria-hidden="true">📅</span>
         <span>{{ $currentYm }}</span>
       </div>
 
-      <a class="month-btn" href="{{ route('attendance.list', ['month' => $nextMonth]) }}">翌月 →</a>
+      <a class="month-btn" href="{{ route('admin.users.attendances.monthly', ['user' => $user->id, 'month' => $nextMonth]) }}">翌月 →</a>
     </div>
   </div>
 

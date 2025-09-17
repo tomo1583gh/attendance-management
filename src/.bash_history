@@ -112,3 +112,13 @@ php artisan optimize:clear
 php artisan route:list | grep request.store
 php artisan optimize:clear
 exit
+php artisan route:list | grep admin/attendances
+php artisan make:request Admin/AttendanceDetailUpdateRequest
+php artisan optimize:clear
+php artisan optimize:clear
+php artisan optimize:clear
+php artisan route:list | grep admin.users.attendances.monthly
+php artisan route:list | grep admin.users.attendances.monthly
+php artisan optimize:clear
+php artisan optimize:clear
+exit
