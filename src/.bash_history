@@ -122,3 +122,20 @@ php artisan route:list | grep admin.users.attendances.monthly
 php artisan optimize:clear
 php artisan optimize:clear
 exit
+php artisan test --filter=名前が未入力の場合_バリデーションメッセージが表示される
+
+php artisan test --filter=名前が未入力の場合_メールアドレスが未入力の場合_バリデーションメッセージが表示される
+php artisan test --filter=名前が未入力の場合_メールア=メールアドレスが未入力の場合_バリデーションメッセージが表示される
+exit
+php artisan migrate:fresh --seed --env=testing
+exit
+php artisan test --filter=名前が未入力の場合_メールア=メ�パスワードが8文字未満の場合_バリデーションメッセージが表示される
+php artisan test --filter=名前が未入力の場合_メー�
+php artisan test --filter=名前が未RegisterTest
+php artisan test --filter=RegisterTest
+php artisan test --filter=RegisterTest
+php artisan test --filter=RegisterTest
+php artisan test --filter=RegisterTest
+php artisan test --filter=RegisterTest
+php artisan test --filter=RegisterTest
+exit

@@ -6,7 +6,9 @@
 - MySQL 8
 - Mailhog
 
-## セットアップ
+---
+
+## セットアップ（開発環境）
 ```bash
 git clone <this-repo>
 cd attendance-management
@@ -14,11 +16,25 @@ docker compose up -d --build
 docker compose exec php bash -lc "cp .env.example .env && php artisan key:generate"
 # .env の DB / MAIL を確認（Mailhog）
 docker compose exec php bash -lc "php artisan migrate --seed"
+セットアップ（テスト環境）
+bash
+コードをコピーする
+# .env.testing.example をコピー
+cp .env.testing.example .env.testing
 
+# APP_KEY を発行して .env.testing に反映
+php artisan key:generate --show
+# → 表示されたキーを .env.testing の APP_KEY に貼り付ける
+
+# マイグレーション実行（テストDB用）
+php artisan migrate:fresh --seed --env=testing
+テスト実行：
+
+bash
+コードをコピーする
+php artisan test
 ログイン情報（必須）
-
 一般ユーザー（メール認証済）
-
 メール：user@example.com
 
 パスワード：password
@@ -26,7 +42,6 @@ docker compose exec php bash -lc "php artisan migrate --seed"
 ログインURL：/login
 
 管理者
-
 メール：admin@example.com
 
 パスワード：password
@@ -34,7 +49,6 @@ docker compose exec php bash -lc "php artisan migrate --seed"
 ログインURL：/admin/login
 
 主要画面URL
-
 会員登録（一般）：/register
 
 ログイン（一般）：/login
@@ -62,5 +76,8 @@ docker compose exec php bash -lc "php artisan migrate --seed"
 申請承認：/admin/requests/{id}
 
 テストデータ
+以下でダミーデータが投入されます（管理者/一般ユーザー、勤怠・休憩データ含む）：
 
-php artisan migrate:fresh --seed で投入（管理者/一般ユーザー、勤怠・休憩ダミー）
+bash
+コードをコピーする
+php artisan migrate:fresh --seed
