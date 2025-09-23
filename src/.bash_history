@@ -139,3 +139,10 @@ php artisan test --filter=RegisterTest
 php artisan test --filter=RegisterTest
 php artisan test --filter=RegisterTest
 exit
+php artisan test --filter=AttendanceListTest
+php artisan test --filter=AttendanceListTest
+php artisan test --filter=AttendanceListTest
+php artisan test --filter=AttendanceListTest
+php artisan test --filter=ClockOutTest
+php artisan test --filter=ClockOutTest
+exit

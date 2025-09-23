@@ -41,7 +41,7 @@
               'start' => optional($b->start_at)->format('H:i'),
               'end'   => optional($b->end_at)->format('H:i'),
             ];
-         })->toArray();
+        })->toArray();
 
   // バリデーションで戻ったときは old() を優先
   $rows = old('breaks', $prefill);
