@@ -1,17 +1,19 @@
 <?php
 
-namespace Tests\Feature\UserAttendance;
+namespace Tests\Feature\User;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use App\Models\User;
 use Carbon\Carbon;
+use App\Models\Attendance;
+use PHPUnit\Framework\Attributes\Test;
 
 class AttendanceListTest extends TestCase
 {
   use RefreshDatabase;
 
-  /** @test */
+  #[Test]
   public function 出勤時刻が勤怠一覧画面で確認できる()
   {
     // 1) 現在時刻を固定（JST）— 一覧の表示時刻とズレないよう秒は 00 に
@@ -152,7 +154,7 @@ class AttendanceListTest extends TestCase
     return false;
   }
 
-  /** @test */
+  #[Test]
   public function 休憩時刻が勤怠一覧画面で確認できる()
   {
     // 1) 現在時刻固定（JST）
@@ -216,5 +218,51 @@ class AttendanceListTest extends TestCase
       }
     }
     $this->assertTrue($foundDate, '勤怠一覧に当日の日付が表示されていません。');
+  }
+
+  #[Test]
+  public function 自分が行った勤怠情報が全て表示されている(): void
+  {
+    // Arrange
+    $me = User::factory()->create(['name' => '山田太郎', 'email' => 'taro@example.com']);
+
+    // 2025-05 の 10, 11, 12 に勤怠を作成
+    $base = Carbon::create(2025, 5, 10);
+    $mine = Attendance::factory()->count(3)->for($me)->sequence(
+      ['work_date' => $base->copy()->day(10)],
+      ['work_date' => $base->copy()->day(11)],
+      ['work_date' => $base->copy()->day(12)],
+    )->create();
+
+    // 現在月依存を避けるため現在日時を 2025-05-12 に固定（なくてもOKだが安定のため）
+    Carbon::setTestNow($base->copy()->day(12));
+
+    // ログイン
+    $this->actingAs($me);
+
+    // Act: 対象月を指定して一覧へ
+    $monthParam = $base->format('Y-m'); // "2025-05"
+    $response = $this->get("/attendance/list?month={$monthParam}");
+    $response->assertOk();
+    $html = $response->getContent();
+
+    // Debug（失敗時に中身確認したい場合）
+    @file_put_contents(storage_path('logs/test_attendance_list.html'), $html);
+
+    // Assert:
+    // 勤怠がある日は `/attendance/detail/{id}` のリンクが出る仕様 → そのリンクの存在で確認
+    foreach ($mine as $a) {
+      $abs = route('attendance.detail', $a->id);           // 例: http://localhost/attendance/detail/3
+      $rel = parse_url($abs, PHP_URL_PATH) ?? '';          // 例: /attendance/detail/3
+
+      $this->assertTrue(
+        str_contains($html, $abs) || str_contains($html, $rel),
+        "自分の勤怠詳細リンクが見つかりません: {$rel}（または {$abs}）\n" .
+          "HTML: storage/logs/test_attendance_list.html を確認してください。"
+      );
+    }
+
+    // 後片付け
+    Carbon::setTestNow();
   }
 }

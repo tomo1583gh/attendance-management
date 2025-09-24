@@ -4,12 +4,13 @@ namespace Tests\Feature\Auth;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class RegisterTest extends TestCase
 {
   use RefreshDatabase;
 
-  /** @test */
+  #[Test]
   public function 名前が未入力の場合_バリデーションメッセージが表示される()
   {
     // 準備：入力データ（nameだけ未入力）
@@ -35,7 +36,7 @@ class RegisterTest extends TestCase
     );
   }
 
-  /** @test */
+  #[Test]
   public function メールアドレスが未入力の場合_バリデーションメッセージが表示される()
   {
     // 準備：emailだけ未入力
@@ -61,7 +62,7 @@ class RegisterTest extends TestCase
     );
   }
 
-  /** @test */
+  #[Test]
   public function パスワードが8文字未満の場合_バリデーションメッセージが表示される(): void
   {
     // Arrange: 入力データを準備（パスワードを短くする）
@@ -82,7 +83,7 @@ class RegisterTest extends TestCase
     ]);
   }
 
-  /** @test */
+  #[Test]
   public function パスワードが一致しない場合_バリデーションメッセージが表示される(): void
   {
     // Arrange: 入力データを準備（password と password_confirmation を不一致にする）
@@ -107,7 +108,7 @@ class RegisterTest extends TestCase
     );
   }
 
-  /** @test */
+  #[Test]
   public function パスワードが未入力の場合_バリデーションメッセージが表示される(): void
   {
     // Arrange: 入力データを準備（password を未入力にする）
@@ -132,7 +133,7 @@ class RegisterTest extends TestCase
     );
   }
 
-  /** @test */
+  #[Test]
   public function フォームに内容が入力されていた場合_データが正常に保存される(): void
   {
     // Arrange: 入力データを準備

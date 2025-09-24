@@ -6,12 +6,13 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use App\Models\User;
 use Carbon\Carbon;
+use PHPUnit\Framework\Attributes\Test;
 
 class AttendanceBreakTest extends TestCase
 {
   use RefreshDatabase;
 
-  /** @test */
+  #[Test]
   public function 休憩ボタンが正しく機能する()
   {
     // 1) 現在時刻を固定（JST）
@@ -54,7 +55,7 @@ class AttendanceBreakTest extends TestCase
     $after->assertDontSee('action="' . route('attendance.clockOut') . '"', false);
   }
 
-  /** @test */
+  #[Test]
   public function 休憩は一日に何回でもできる()
   {
     // 1) 現在時刻を固定（JST）
@@ -122,7 +123,7 @@ class AttendanceBreakTest extends TestCase
     $final->assertSee('action="' . route('attendance.breakIn') . '"', false);
   }
 
-  /** @test */
+  #[Test]
   public function 休憩戻ボタンが正しく機能する()
   {
     // 1) 現在時刻を固定（JST）
@@ -167,7 +168,7 @@ class AttendanceBreakTest extends TestCase
     $after->assertDontSee('action="' . route('attendance.breakOut') . '"', false);
   }
 
-  /** @test */
+  #[Test]
   public function 休憩戻は一日に何回でもできる()
   {
     // 1) 現在時刻を固定（JST）

@@ -4,13 +4,14 @@ namespace Tests\Feature\Admin;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use App\Models\Admin; // 管理者モデルを利用している想定
+use App\Models\Admin;
+use PHPUnit\Framework\Attributes\Test;
 
 class LoginTest extends TestCase
 {
   use RefreshDatabase;
 
-  /** @test */
+  #[Test]
   public function メールアドレス未入力の場合_バリデーションメッセージが表示される()
   {
     // 1. 管理者ユーザーを登録
@@ -37,7 +38,7 @@ class LoginTest extends TestCase
     );
   }
 
-  /** @test */
+  #[test]
   public function パスワードが未入力の場合_バリデーションメッセージが表示される()
   {
     // 1. 管理者を登録
@@ -64,7 +65,7 @@ class LoginTest extends TestCase
     );
   }
 
-  /** @test */
+  #[Test]
   public function 登録内容と一致しない場合_バリデーションメッセージが表示される()
   {
     // 1. 正しい管理者ユーザーを登録

@@ -6,12 +6,13 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use App\Models\User;
 use Carbon\Carbon;
+use PHPUnit\Framework\Attributes\Test;
 
 class ClockOutTest extends TestCase
 {
   use RefreshDatabase;
 
-  /** @test */
+  #[Test]
   public function 退勤ボタンが正しく機能する()
   {
     // 1) 現在時刻を固定（JST）
@@ -56,7 +57,7 @@ class ClockOutTest extends TestCase
     $after->assertDontSee('action="' . route('attendance.breakOut') . '"', false);
   }
 
-  /** @test */
+  #[Test]
   public function 退勤時刻が勤怠一覧画面で確認できる()
   {
     // 1) 現在時刻固定（JST）

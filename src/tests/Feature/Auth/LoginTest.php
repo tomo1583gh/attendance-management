@@ -5,12 +5,13 @@ namespace Tests\Feature\Auth;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use App\Models\User;
+use PHPUnit\Framework\Attributes\Test;
 
 class LoginTest extends TestCase
 {
   use RefreshDatabase;
 
-  /** @test */
+  #[Test]
   public function メールアドレスが未入力の場合_バリデーションメッセージが表示される()
   {
     // 1. ユーザーを登録
@@ -37,7 +38,7 @@ class LoginTest extends TestCase
     );
   }
 
-  /** @test */
+  #[Test]
   public function パスワードが未入力の場合_バリデーションメッセージが表示される()
   {
     // 1. ユーザーを登録
@@ -64,7 +65,7 @@ class LoginTest extends TestCase
     );
   }
 
-  /** @test */
+  #[Test]
   public function 登録内容と一致しない場合_バリデーションメッセージが表示される()
   {
     // 1. 正しいユーザーを登録

@@ -8,12 +8,13 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use PHPUnit\Framework\Attributes\Test;
 
 class AttendanceStatusTest extends TestCase
 {
   use RefreshDatabase;
 
-  /** @test */
+  #[Test]
   public function 勤務外の場合はステータスが正しく（勤務外）と表示される()
   {
     // 1) 現在を固定（挙動安定のため）
@@ -42,7 +43,7 @@ class AttendanceStatusTest extends TestCase
     $response->assertDontSee('休憩戻');
   }
 
-  /** @test */
+  #[Test]
   public function 出勤中の場合はステータスが正しく（出勤中）と表示される()
   {
     // 1) 現在日時を固定
@@ -78,7 +79,7 @@ class AttendanceStatusTest extends TestCase
     $response->assertDontSee('勤務外');
   }
 
-  /** @test */
+  #[Test]
   public function 休憩中の場合はステータスが正しく（休憩中）と表示される()
   {
     // 1) 現在を固定（JST）
@@ -186,7 +187,7 @@ class AttendanceStatusTest extends TestCase
     return $required ? null : null;
   }
 
-  /** @test */
+  #[Test]
   public function 退勤済の場合はステータスが正しく（退勤済）と表示される()
   {
     // 1) 時刻を固定（出勤→8時間後に退勤）

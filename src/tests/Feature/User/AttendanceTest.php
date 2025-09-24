@@ -6,12 +6,13 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use App\Models\User;
 use Carbon\Carbon;
+use PHPUnit\Framework\Attributes\Test;
 
 class AttendanceTest extends TestCase
 {
   use RefreshDatabase;
 
-  /** @test */
+  #[Test]
   public function 現在の日時情報がUIと同じ形式で出力されている()
   {
     // 1) 現在時刻を固定（JST）

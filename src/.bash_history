@@ -146,3 +146,18 @@ php artisan test --filter=AttendanceListTest
 php artisan test --filter=ClockOutTest
 php artisan test --filter=ClockOutTest
 exit
+php artisan test --filter=AttendanceListTest
+php artisan test --filter=AttendanceListTest
+php artisan test --filter=AttendanceListTest
+php artisan test --filter=AttendanceListTest
+php artisan test --filter=AttendanceListTest
+php artisan test --filter=AttendanceListTest
+php artisan test --filter=AttendanceListTest
+php artisan test --filter=AttendanceListTest
+php artisan test --filter=AttendanceListTest
+php artisan test --filter=AttendanceListTest
+php artisan test --filter=AttendanceListTest
+php artisan test --filter=AttendanceListTest
+php artisan test --filter=AttendanceListTest
+php artisan test
+exit

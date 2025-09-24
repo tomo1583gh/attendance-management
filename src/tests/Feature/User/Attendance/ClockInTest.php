@@ -6,12 +6,13 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use App\Models\User;
 use Carbon\Carbon;
+use PHPUnit\Framework\Attributes\Test;
 
 class ClockInTest extends TestCase
 {
   use RefreshDatabase;
 
-  /** @test */
+  #[Test]
   public function 出勤ボタンが正しく機能する()
   {
     // 1) 現在時刻を固定（JST）
@@ -48,7 +49,7 @@ class ClockInTest extends TestCase
     $after->assertDontSee('<button type="submit" class="btn btn--primary">出勤</button>', false);
   }
 
-  /** @test */
+  #[Test]
   public function 出勤は一日一回のみできる()
   {
     // 1) 時刻を固定（JST）
