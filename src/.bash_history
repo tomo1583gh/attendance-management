@@ -161,3 +161,15 @@ php artisan test --filter=AttendanceListTest
 php artisan test --filter=AttendanceListTest
 php artisan test
 exit
+php artisan test --filter=AttendanceMonthDisplayTest
+php artisan test --filter=AttendanceMonthDisplayTest
+php artisan test --filter=AttendanceMonthDisplayTest
+php artisan test --filter=AttendanceDetailNavigationTest
+php artisan test --filter=AttendanceDetailNavigationTest
+php artisan test --filter=AttendanceDetailNameTest
+php artisan test --filter=AttendanceDetailDateTest
+php artisan test --filter=AttendanceDetailDateTest
+php artisan test --filter=AttendanceDetailDateTest
+php artisan route:list | grep attendance.detail
+php artisan test --filter=AttendanceDetailDateTest
+exit

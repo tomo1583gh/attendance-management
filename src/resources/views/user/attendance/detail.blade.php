@@ -12,6 +12,8 @@
   $action         = $action         ?? route('request.store', $attendance->id);
   $method         = $method         ?? 'POST';
   $pendingMessage = $pendingMessage ?? ($isPending ? '※ 承認待ちのため修正はできません。' : null);
+
+  $showDate = isset($displayDate) ? $displayDate : ($attendance->work_date ?? null);
 @endphp
 
 {{-- 派生側（管理者）がここで変数を上書きできる --}}
@@ -67,6 +69,14 @@
         <div class="detail-field date-split">
           <span class="date-year">{{ optional($attendance->work_date)->format('Y') }}年</span>
           <span class="date-monthday">{{ optional($attendance->work_date)->format('n月j日') }}</span>
+
+          @if($showDate)
+            <time class="detail-date"
+                  datetime="{{ optional($showDate)->toDateString() }}"
+                  data-date="{{ optional($showDate)->toDateString() }}">
+              {{ optional($showDate)->format('Y/m/d') }}
+            </time>
+          @endif
         </div>
       </div>
 

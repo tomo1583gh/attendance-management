@@ -88,11 +88,6 @@ class AttendanceController extends Controller
             }
         );
 
-        /* BreakTime::create([
-            'attendance_id' => $attendance->id,
-            'start_at'      => now(),
-        ]); */
-
         return redirect()->route('attendance.index')->with('status', '休憩に入りました');
     }
 
