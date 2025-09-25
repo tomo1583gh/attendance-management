@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\User;
+namespace Tests\Feature\User\Attendance;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -8,7 +8,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use PHPUnit\Framework\Attributes\Test;
 
-class AttendanceTest extends TestCase
+class DateTimeDisplayTest extends TestCase
 {
   use RefreshDatabase;
 

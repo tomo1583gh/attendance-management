@@ -11,9 +11,9 @@
   @php($tab = $tab ?? 'pending')
   <div class="tabs-bar">
     <a href="{{ route('request.list', ['tab' => 'pending']) }}"
-       class="tabs__link {{ $tab === 'pending' ? 'is-active' : '' }}">承認待ち</a>
+      class="tabs__link {{ $tab === 'pending' ? 'is-active' : '' }}">承認待ち</a>
     <a href="{{ route('request.list', ['tab' => 'approved']) }}"
-       class="tabs__link {{ $tab === 'approved' ? 'is-active' : '' }}">承認済み</a>
+      class="tabs__link {{ $tab === 'approved' ? 'is-active' : '' }}">承認済み</a>
   </div>
 
   {{-- 一覧カード（テーブル） --}}
