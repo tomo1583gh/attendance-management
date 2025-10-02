@@ -173,3 +173,9 @@ php artisan test --filter=AttendanceDetailDateTest
 php artisan route:list | grep attendance.detail
 php artisan test --filter=AttendanceDetailDateTest
 exit
+php artisan test --filter=AttendanceDetailDateTest
+php artisan test --filter=AttendanceUpdateValidationTest
+php artisan test --filter=AttendanceUpdateValidationTest
+php artisan test --filter=AttendanceUpdateValidationTest
+php artisan test --filter=AttendanceUpdateValidationTest
+exit

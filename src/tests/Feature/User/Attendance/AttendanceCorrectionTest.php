@@ -256,7 +256,7 @@ class AttendanceCorrectionTest extends TestCase
   }
 
   #[Test]
-  public function 承認待ちにログインユーザーが行った申請が全て表示されている(): void
+  public function 「承認待ち」にログインユーザーが行った申請が全て表示されている(): void
   {
     // Arrange: ユーザーと2日の勤怠を用意
     $user = User::factory()->create(['name' => '申請ユーザー']);
@@ -325,75 +325,242 @@ class AttendanceCorrectionTest extends TestCase
     // ルート名がある前提。無ければ '/stamp_correction_request/list?tab=pending' に変えてください。
     $res = $this->get(route('request.list', ['tab' => 'pending']));
     $res->assertOk();
+
+    // ビューに渡された rows を直接検証（HTML表記ゆれの影響を回避）
+    $rows = collect($res->viewData('rows') ?? []);
+    $this->assertNotEmpty($rows, 'ビューに rows が渡されていません。');
+
+    // 「承認待ち」かつ「自分の氏名」でフィルタ
+    $mine = $rows->filter(function ($r) use ($user) {
+      $status = $r->status_label ?? $r->status ?? null; // '承認待ち' を想定
+      $name   = $r->user_name    ?? null;
+      return $status === '承認待ち' && $name === $user->name;
+    })->values();
+
+    // 自分の pending が 2 件あること
+    $this->assertCount(2, $mine, '承認待ちに自分の申請が2件存在しません。（rows 検証）');
+
+    // 対象日（Controller で 'Y/m/d' に整形済み）を検証
+    $dates = $mine->pluck('target_date')->all(); // 例: ['2025/05/10', '2025/05/11']
+    $this->assertTrue(
+      in_array($d1->format('Y/m/d'), $dates, true) &&
+        in_array($d2->format('Y/m/d'), $dates, true),
+      '承認待ち rows に対象日が見つかりません。実際: ' . json_encode($dates, JSON_UNESCAPED_UNICODE)
+    );
+
+    // 他ユーザーの pending が混入していないこと
+    $otherPending = $rows->first(function ($r) use ($other) {
+      $status = $r->status_label ?? $r->status ?? null;
+      $name   = $r->user_name    ?? null;
+      return $status === '承認待ち' && $name === $other->name;
+    });
+    $this->assertNull($otherPending, '承認待ちに他ユーザーの申請が混入しています。');
+  }
+
+  #[Test]
+  public function 承認済みに管理者が承認した修正申請が全て表示されている(): void
+  {
+    // Arrange: ユーザーと2日の勤怠
+    $user = User::factory()->create(['name' => '申請ユーザー']);
+    $d1 = Carbon::create(2025, 5, 10);
+    $d2 = Carbon::create(2025, 5, 11);
+
+    $a1 = Attendance::factory()->for($user)->create([
+      'work_date'    => $d1->copy()->startOfDay(),
+      'clock_in_at'  => $d1->copy()->setTime(9, 0),
+      'clock_out_at' => $d1->copy()->setTime(18, 0),
+    ]);
+    $a2 = Attendance::factory()->for($user)->create([
+      'work_date'    => $d2->copy()->startOfDay(),
+      'clock_in_at'  => $d2->copy()->setTime(9, 0),
+      'clock_out_at' => $d2->copy()->setTime(18, 0),
+    ]);
+
+    // 自分の修正申請を2件作成（ルート経由）
+    $this->actingAs($user);
+
+    $this->post(route('request.store', $a1->id), [
+      'clock_in'  => '09:05',
+      'clock_out' => '18:10',
+      'breaks'    => [['start' => '12:00', 'end' => '12:30']],
+      'note'      => '申請1',
+    ])->assertRedirect();
+
+    $this->post(route('request.store', $a2->id), [
+      'clock_in'  => '09:15',
+      'clock_out' => '18:05',
+      'breaks'    => [['start' => '15:00', 'end' => '15:10']],
+      'note'      => '申請2',
+    ])->assertRedirect();
+
+    // 管理者が承認した体でステータスを更新（承認フローを直接叩かない代替）
+    CorrectionRequest::where('user_id', $user->id)
+      ->whereIn('attendance_id', [$a1->id, $a2->id])
+      ->update([
+        'status'      => 'approved',
+        'approved_at' => now(),
+      ]);
+
+    // 他ユーザーの承認済みが混入しないことの確認用データ
+    $other = User::factory()->create(['name' => '他ユーザー']);
+    $od = Carbon::create(2025, 5, 12);
+    $oa = Attendance::factory()->for($other)->create([
+      'work_date'    => $od->copy()->startOfDay(),
+      'clock_in_at'  => $od->copy()->setTime(9, 0),
+      'clock_out_at' => $od->copy()->setTime(18, 0),
+    ]);
+
+    $this->actingAs($other);
+    $this->post(route('request.store', $oa->id), [
+      'clock_in'  => '09:20',
+      'clock_out' => '18:15',
+      'breaks'    => [['start' => '12:10', 'end' => '12:25']],
+      'note'      => '他人の申請（承認済み混入防止）',
+    ])->assertRedirect();
+
+    CorrectionRequest::where('user_id', $other->id)->update([
+      'status'      => 'approved',
+      'approved_at' => now(),
+    ]);
+
+    // 検証対象ユーザーに戻す
+    $this->actingAs($user);
+
+    // DB二重チェック
+    $this->assertDatabaseHas('correction_requests', [
+      'attendance_id' => $a1->id,
+      'user_id' => $user->id,
+      'status' => 'approved',
+    ]);
+    $this->assertDatabaseHas('correction_requests', [
+      'attendance_id' => $a2->id,
+      'user_id' => $user->id,
+      'status' => 'approved',
+    ]);
+
+    // Act: 申請一覧（承認済みタブ）
+    $res = $this->get(route('request.list', ['tab' => 'approved']));
+    // ルート名が無い場合は↓を使用
+    // $res = $this->get('/stamp_correction_request/list?tab=approved');
+
+    $res->assertOk();
+
+    // Assert: ビューの rows を直接検証
+    $rows = collect($res->viewData('rows') ?? []);
+    $this->assertNotEmpty($rows, 'ビューに rows が渡されていません。');
+
+    // 「承認済み」かつ「自分の氏名」でフィルタ
+    $mine = $rows->filter(function ($r) use ($user) {
+      $status = $r->status_label ?? $r->status ?? null; // '承認済み' を想定
+      $name   = $r->user_name    ?? null;
+      return $status === '承認済み' && $name === $user->name;
+    })->values();
+
+    // 自分の承認済みが2件
+    $this->assertCount(2, $mine, '承認済みに自分の承認済み申請が2件存在しません。（rows 検証）');
+
+    // 対象日（Controllerで 'Y/m/d' 整形済み）が一致
+    $dates = $mine->pluck('target_date')->all();
+    $this->assertTrue(
+      in_array($d1->format('Y/m/d'), $dates, true) &&
+        in_array($d2->format('Y/m/d'), $dates, true),
+      '承認済み rows に対象日が見つかりません。実際: ' . json_encode($dates, JSON_UNESCAPED_UNICODE)
+    );
+
+    // 他ユーザーの承認済みが混入していない
+    $otherInRows = $rows->first(function ($r) use ($other) {
+      $status = $r->status_label ?? $r->status ?? null;
+      $name   = $r->user_name    ?? null;
+      return $status === '承認済み' && $name === $other->name;
+    });
+    $this->assertNull($otherInRows, '承認済みに他ユーザーの申請が混入しています。');
+  }
+
+  #[Test]
+  public function 各申請の「詳細」を押下すると勤怠詳細画面に遷移する(): void
+  {
+    // Arrange: ユーザーと勤怠を1件用意
+    $user = User::factory()->create(['name' => '申請ユーザー']);
+    $date = Carbon::create(2025, 5, 10);
+
+    $attendance = Attendance::factory()->for($user)->create([
+      'work_date'    => $date->copy()->startOfDay(),
+      'clock_in_at'  => $date->copy()->setTime(9, 0),
+      'clock_out_at' => $date->copy()->setTime(18, 0),
+    ]);
+
+    // ログインして修正申請を作成（pending タブに出る想定）
+    $this->actingAs($user);
+    $this->post(route('request.store', $attendance->id), [
+      'clock_in'  => '09:10',
+      'clock_out' => '18:05',
+      'breaks'    => [['start' => '12:00', 'end' => '12:20']],
+      'note'      => '遷移テスト用の申請',
+    ])->assertRedirect();
+
+    // Act: 申請一覧（pending）を開く
+    $res = $this->get(route('request.list', ['tab' => 'pending'])); // 無ければ '/stamp_correction_request/list?tab=pending'
+    $res->assertOk();
+
+    // HTML から「勤怠詳細」へのリンク href を抽出（ID形式 or ?date=形式の両対応）
     $html = $res->getContent();
-    @file_put_contents(storage_path('logs/test_request_list.html'), $html);
+    @file_put_contents(storage_path('logs/test_request_list_detail_link.html'), $html);
 
-    // 「承認待ち」ブロック抽出（無ければ全体で）
-    if (preg_match('/承認待ち(.|\R)*?承認済み/su', $html, $m)) {
-      $pendingBlock = $m[0];
-    } elseif (preg_match('/承認待ち(.|\R)*/su', $html, $m)) {
-      $pendingBlock = $m[0];
-    } else {
-      $pendingBlock = $html;
+    $expectedIdPath  = parse_url(route('attendance.detail', $attendance->id), PHP_URL_PATH); // /attendance/detail/{id}
+    $expectedDateIso = $date->toDateString();                                               // YYYY-MM-DD
+
+    $href = null;
+
+    // 1) /attendance/detail/{id} を含むリンク
+    if (preg_match('#href="([^"]*' . preg_quote($expectedIdPath, '#') . '[^"]*)"#u', $html, $m)) {
+      $href = $m[1];
     }
 
-    // 表記ゆれに広く対応した期待トークンを用意
-    $w = ['日', '月', '火', '水', '木', '金', '土'];
-    $tokensFor = function (Carbon $date, string $note, string $userName, int $attendanceId) use ($w) {
-      $dow = $w[$date->dayOfWeek];
-      $idPath = parse_url(route('attendance.detail', $attendanceId), PHP_URL_PATH);
-      return [
-        // リンク関連
-        $idPath,                              // /attendance/detail/{id}
-        '/attendance/detail',                 // そもそもこのパスが出ているか
-        '?date=' . $date->toDateString(),     // ?date=YYYY-MM-DD
-
-        // 日付（多表記）
-        $date->toDateString(),                // 2025-05-10
-        $date->format('Y/m/d'),               // 2025/05/10
-        $date->format('Y/n/j'),               // 2025/5/10
-        $date->format('m/d'),                 // 05/10
-        $date->format('n/j'),                 // 5/10
-        $date->format("m/d({$dow})"),         // 05/10(土)
-        $date->format("n/j({$dow})"),         // 5/10(土)
-        $date->format('Y年n月j日'),           // 2025年5月10日
-
-        // 備考やユーザー名（ビューが出していれば拾える）
-        $note,
-        $userName,
-      ];
-    };
-
-    $cases = [
-      $tokensFor($d1, '申請1', $user->name, $a1->id),
-      $tokensFor($d2, '申請2', $user->name, $a2->id),
-    ];
-
-    foreach ($cases as $tokens) {
-      $hit = false;
-      foreach ($tokens as $t) {
-        if ($t && str_contains($pendingBlock, (string)$t)) {
-          $hit = true;
-          break;
-        }
-      }
-      if (!$hit) {
-        $this->fail(
-          "承認待ちに自分の申請が見つかりません。\n" .
-            "試したトークン: " . implode(' / ', array_filter($tokens)) . "\n" .
-            "HTML: storage/logs/test_request_list.html を確認してください。"
-        );
-      }
+    // 2) /attendance/detail/0?date=YYYY-MM-DD のような形式
+    if (!$href && preg_match('#href="([^"]*attendance/detail/0\?date=' . preg_quote($expectedDateIso, '#') . '[^"]*)"#u', $html, $m)) {
+      $href = $m[1];
     }
 
-    // 他ユーザーの pending が混入していないこと（承認待ちブロック内で判定）
-    $otherIdPath = parse_url(route('attendance.detail', $oa->id), PHP_URL_PATH);
-    $this->assertFalse(
-      str_contains($pendingBlock, $otherIdPath)
-        || str_contains($pendingBlock, $other->name)
-        || str_contains($pendingBlock, $od->toDateString())
-        || str_contains($pendingBlock, $od->format('Y/m/d')),
-      "承認待ちに他ユーザーの申請が混入しています。"
+    // 3) 念のため attendance/detail と 日付を同時に含むリンクを緩く拾う
+    if (
+      !$href &&
+      preg_match('#href="([^"]*attendance/detail[^"]*)"#u', $html, $m) &&
+      str_contains($m[1], $expectedDateIso)
+    ) {
+      $href = $m[1];
+    }
+
+    $this->assertNotNull($href, "申請一覧に勤怠詳細への『詳細』リンクが見つかりません。\n想定: {$expectedIdPath} または ?date={$expectedDateIso}\nHTML: storage/logs/test_request_list_detail_link.html を確認してください。");
+
+    // 抜き出した href にアクセス（絶対URLでも相対パスでも対応）
+    $parts = parse_url(html_entity_decode($href));
+    $pathWithQuery = ($parts['path'] ?? '') . (isset($parts['query']) ? '?' . $parts['query'] : '');
+    // 絶対URLの場合 path が空ならそのまま
+    $target = $pathWithQuery !== '' ? $pathWithQuery : $href;
+
+    // 詳細ページへ遷移できること
+    $detail = $this->get($target);
+    $detail->assertOk();
+
+    // 勤怠詳細画面らしいこと（タイトルや見出し）＋ 対象ユーザー名と日付が含まれることを確認
+    $detailHtml = $detail->getContent();
+    $this->assertTrue(
+      str_contains($detailHtml, '勤怠詳細') ||
+        str_contains($detailHtml, '<h1') && str_contains($detailHtml, '詳細'),
+      '勤怠詳細画面らしい見出しが見つかりません。'
+    );
+
+    // ユーザー名
+    $this->assertStringContainsString($user->name, $detailHtml, '勤怠詳細画面にユーザー名が表示されていません。');
+
+    // 日付（多表記許容）
+    $iso   = $date->toDateString();      // 2025-05-10
+    $ymd   = $date->format('Y/m/d');     // 2025/05/10
+    $kanji = $date->format('Y年n月j日'); // 2025年5月10日
+
+    $this->assertTrue(
+      str_contains($detailHtml, $iso) || str_contains($detailHtml, $ymd) || str_contains($detailHtml, $kanji),
+      "勤怠詳細画面に対象日が見つかりません。（{$iso} / {$ymd} / {$kanji} のいずれか）"
     );
   }
 }
