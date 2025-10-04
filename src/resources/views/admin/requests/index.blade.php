@@ -14,9 +14,9 @@
   @endphp
   <div class="request-tabs">
     <a href="{{ route('admin.requests.index', ['tab' => 'pending']) }}"
-       class="request-tab {{ $tab === 'pending' ? 'is-active' : '' }}">承認待ち</a>
+        class="request-tab {{ $tab === 'pending' ? 'is-active' : '' }}">承認待ち</a>
     <a href="{{ route('admin.requests.index', ['tab' => 'approved']) }}"
-       class="request-tab {{ $tab === 'approved' ? 'is-active' : '' }}">承認済み</a>
+        class="request-tab {{ $tab === 'approved' ? 'is-active' : '' }}">承認済み</a>
   </div>
 
   {{-- 一覧テーブル --}}

@@ -179,3 +179,49 @@ php artisan test --filter=AttendanceUpdateValidationTest
 php artisan test --filter=AttendanceUpdateValidationTest
 php artisan test --filter=AttendanceUpdateValidationTest
 exit
+php artisan test --filter=StampCorrectionRequestFeatureTest
+php artisan test --filter=StampCorrectionRequestFeatureTest
+php artisan test --filter=StampCorrectionRequestFeatureTest
+php artisan test --filter=StampCorrectionRequestFeatureTest
+php artisan test --filter=StampCorrectionRequestFeatureTest
+php artisan test --filter=StampCorrectionRequestFeatureTest
+php artisan test --filter=StampCorrectionRequestFeatureTest
+php artisan test --filter=StampCorrectionRequestFeatureTest
+php artisan test --filter=StampCorrectionRequestFeatureTest
+php artisan test --filter=StampCorrectionRequestFeatureTest
+php artisan test --filter=StampCorrectionRequestFeatureTest
+php artisan test --filter=StampCorrectionRequestFeatureTest
+php artisan test --filter=EmailVerificationFeatureTest
+php artisan test --filter=EmailVerificationFeatureTest
+php artisan test --filter=EmailVerificationFeatureTest
+php artisan test --filter=EmailVerificationFeatureTest
+#[Test]
+public function メール認証完了で勤怠登録画面に遷移する(): void
+{     // 認証未完了ユーザーを作成してログイン;     $user = User::factory()->unverified()->create([
+        'email'    => 'verifyme@example.com',
+        'password' => bcrypt('password123'),
+    ]);
+    $this->actingAs($user, 'web');
+    // 署名付き検証URLを生成（Fortify/Laravel既定: verification.verify）
+    $verificationUrl = URL::temporarySignedRoute(
+        'verification.verify',
+        now()->addMinutes(60),
+        ['id' => $user->id, 'hash' => sha1($user->email)]
+    );
+    // 検証リンクにアクセス
+    $res = $this->get($verificationUrl);
+    // リダイレクト先に /attendance が含まれること（実装でクエリ等が付いても許容）
+    $res->assertRedirect();
+    $location = $res->headers->get('Location');
+    $this->assertNotNull($location, 'リダイレクト先が取得できません。');
+    $this->assertStringContainsString('/attendance', $location, '勤怠登録画面へ遷移していません。');
+    // 実際に勤怠登録画面へ到達できる（200 or 302を許容）
+    $follow = $this->get($location);
+    $this->assertTrue(in_array($follow->getStatusCode(), [200, 302], true), '勤怠登録画面の表示に失敗しました。');
+    // ユーザーのメールが検証済みになっている
+    $user->refresh();
+    $this->assertNotNull($user->email_verified_at, 'email_verified_at が設定されていません。');
+}
+php artisan test --filter=EmailVerificationFeatureTest
+php artisan test
+exit
