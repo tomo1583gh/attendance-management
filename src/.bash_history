@@ -237,3 +237,6 @@ php artisan test
 php artisan test --filter=AttendanceDetailFeatureTest
 php artisan test
 exit
+php artisan test
+php artisan test
+exit
