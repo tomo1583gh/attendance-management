@@ -4,10 +4,7 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
-use Carbon\CarbonPeriod;
-use App\Models\Attendance;
 
 class AttendanceListController extends Controller
 {

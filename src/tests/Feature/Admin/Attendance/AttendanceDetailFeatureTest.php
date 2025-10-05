@@ -51,14 +51,44 @@ class AttendanceDetailFeatureTest extends TestCase
     // Assert: ユーザー名
     $res->assertSee('管理者確認ユーザー');
 
-    // Assert: 日付（表記ゆれに対応）
-    $iso   = $date->toDateString();      // 2025-05-10
-    $ymd   = $date->format('Y/m/d');     // 2025/05/10
-    $kanji = $date->format('Y年n月j日'); // 2025年5月10日
+    // Assert: 日付（表記ゆれ＋改行/タグ挟み対応）
+    $Y  = (int) $date->format('Y');
+    $m  = (int) $date->format('n');  // 5
+    $d  = (int) $date->format('j');  // 10
+    $m2 = str_pad((string)$m, 2, '0', STR_PAD_LEFT); // 05
+    $d2 = str_pad((string)$d, 2, '0', STR_PAD_LEFT); // 10
+    $iso = $date->toDateString();                    // 2025-05-10
+
+    // 年と月日の間に 空白 / 改行 / <br> / タグ切替 を許容
+    $between = '(?:\s|<br\s*\/?>|<\/[^>]+>\s*<[^>]+>)*';
+
+    $patterns = [
+      // ISO / スラッシュ
+      "/\\b{$iso}\\b/su",
+      "/\\b{$Y}\/{$m2}\/{$d2}\\b/su",
+
+      // 和文（ゼロ埋め揺れ + 改行/タグ挟み許容）→ 例: 「2025年\n10月5日」
+      "/{$Y}年{$between}0?{$m}月{$between}0?{$d}日/su",
+
+      // 属性にも埋められている可能性を拾う（保険）
+      '/data-(?:date|work[-_]date|selected[-_]date)\s*=\s*"' . $Y . '-' . $m2 . '-' . $d2 . '"/su',
+      '/value\s*=\s*"' . $Y . '-' . $m2 . '-' . $d2 . '"/su',
+      '/name\s*=\s*"date"[^>]*value\s*=\s*"' . $Y . '-' . $m2 . '-' . $d2 . '"/su',
+    ];
+
+    $matched = false;
+    foreach ($patterns as $p) {
+      if (preg_match($p, $html) === 1) {
+        $matched = true;
+        break;
+      }
+    }
+
     $this->assertTrue(
-      str_contains($html, $iso) || str_contains($html, $ymd) || str_contains($html, $kanji),
-      "詳細画面に対象日が見つかりません（{$iso} / {$ymd} / {$kanji} のいずれか）。"
+      $matched,
+      "詳細画面に対象日が見つかりません（{$iso} / {$Y}/{$m2}/{$d2} / {$Y}年(改行/タグ可){$m}月(改行/タグ可){$d}日 のいずれか）。"
     );
+
 
     // Assert: 出退勤時刻（プレーン表示 or input[value] の両方を許容）
     $this->assertTrue(

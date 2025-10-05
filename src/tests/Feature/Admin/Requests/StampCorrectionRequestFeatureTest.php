@@ -4,14 +4,12 @@ namespace Tests\Feature\Admin\Requests;
 
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use App\Models\Admin;                   // 管理者（auth:admin 用）
-use App\Models\User;                    // 一般ユーザー
-use App\Models\Attendance;              // 勤怠
-use App\Models\CorrectionRequest;  // 修正申請（モデル名が違う場合は修正）
+use App\Models\Admin;                   
+use App\Models\User;                    
+use App\Models\Attendance;              
+use App\Models\CorrectionRequest;  
 use Carbon\Carbon;
-use Illuminate\Support\Collection;
 use Illuminate\View\View;
-use Illuminate\Pagination\AbstractPaginator;
 use App\Models\BreakTime;
 use PHPUnit\Framework\Attributes\Test;
 

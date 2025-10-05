@@ -553,14 +553,44 @@ class AttendanceCorrectionTest extends TestCase
     // ユーザー名
     $this->assertStringContainsString($user->name, $detailHtml, '勤怠詳細画面にユーザー名が表示されていません。');
 
-    // 日付（多表記許容）
-    $iso   = $date->toDateString();      // 2025-05-10
-    $ymd   = $date->format('Y/m/d');     // 2025/05/10
-    $kanji = $date->format('Y年n月j日'); // 2025年5月10日
+    // 日付（多表記許容：改行・<br>・タグ分割もOK）
+    $Y  = (int) $date->format('Y');
+    $m  = (int) $date->format('n');  // 5
+    $d  = (int) $date->format('j');  // 10
+    $m2 = str_pad((string)$m, 2, '0', STR_PAD_LEFT); // 05
+    $d2 = str_pad((string)$d, 2, '0', STR_PAD_LEFT); // 10
+    $iso = $date->toDateString();                    // 2025-05-10
+
+    // 年と月日の間に 空白 / 改行 / <br> / タグ切り替え を許容
+    $between = '(?:\s|<br\s*\/?>|<\/[^>]+>\s*<[^>]+>)*';
+
+    $patterns = [
+      // ISO / スラッシュ
+      "/\\b{$iso}\\b/su",
+      "/\\b{$Y}\/{$m2}\/{$d2}\\b/su",
+      "/\\b{$Y}-{$m2}-{$d2}\\b/su",
+
+      // 和文（ゼロ埋め揺れ + 改行/タグ挟み許容）
+      "/{$Y}年{$between}0?{$m}月{$between}0?{$d}日/su",
+
+      // 属性など（input/data-* などに埋められている場合も拾う）
+      '/data-(?:date|work[-_]date|selected[-_]date)\s*=\s*"' . $Y . '-' . $m2 . '-' . $d2 . '"/su',
+      '/value\s*=\s*"' . $Y . '-' . $m2 . '-' . $d2 . '"/su',
+      '/name\s*=\s*"date"[^>]*value\s*=\s*"' . $Y . '-' . $m2 . '-' . $d2 . '"/su',
+    ];
+
+    $matched = false;
+    foreach ($patterns as $p) {
+      if (preg_match($p, $detailHtml) === 1) {
+        $matched = true;
+        break;
+      }
+    }
 
     $this->assertTrue(
-      str_contains($detailHtml, $iso) || str_contains($detailHtml, $ymd) || str_contains($detailHtml, $kanji),
-      "勤怠詳細画面に対象日が見つかりません。（{$iso} / {$ymd} / {$kanji} のいずれか）"
+      $matched,
+      "勤怠詳細画面に対象日が見つかりません。\n" .
+        "許容: {$iso} / {$Y}/{$m2}/{$d2} / {$Y}年(改行/タグ可){$m}月(改行/タグ可){$d}日 / 各種属性 など"
     );
   }
 }

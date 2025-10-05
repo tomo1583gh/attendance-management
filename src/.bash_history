@@ -225,3 +225,15 @@ public function メール認証完了で勤怠登録画面に遷移する(): voi
 php artisan test --filter=EmailVerificationFeatureTest
 php artisan test
 exit
+php artisan test --filter=StampCorrectionRequestFeatureTest
+php artisan db:seed
+php artisan test
+php artisan test --filter=AttendanceDetailTest
+php artisan test --filter=AttendanceDetailTest
+php artisan test
+php artisan test --filter=AttendanceCorrectionTest
+php artisan test --filter=AttendanceCorrectionTest
+php artisan test
+php artisan test --filter=AttendanceDetailFeatureTest
+php artisan test
+exit
