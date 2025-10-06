@@ -1,16 +1,19 @@
 /* =========================================
-   グローバル
+  グローバル
 ========================================= */
 :root {
   --black: #0b0b0b;
-  --white: #ffffff;
+  --white: #fff;
   --bg: #f2f2f5;
-  --text: #111111;
+  --text: #111;
   --muted: #9ca3af;
+
   /* ステータスバッジの文字色 */
   --badge-bg: #e5e7eb;
+
   /* グレーのバッジ背景 */
-  --shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow: 0 2px 8px rgb(0 0 0 / 6%);
+
   /* テーブル幅 */
   --list-width:760px;
 }
@@ -32,7 +35,7 @@ body {
 }
 
 /* =========================================
-   ヘッダー 左ロゴ・右ナビ
+  ヘッダー 左ロゴ・右ナビ
 ========================================= */
 .app-header {
   width: 100%;
@@ -46,7 +49,7 @@ body {
   top: 0;
   left: 0;
   z-index: 1000;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgb(0 0 0 / 10%);
 }
 
 .app-header__inner {
@@ -83,7 +86,7 @@ body {
 }
 
 .nav a {
-  color: #ffffff;
+  color: #fff;
   text-decoration: none;
   font-size: 14px;
   font-weight: 700;
@@ -94,26 +97,26 @@ body {
 }
 
 .nav a.is-active {
-  border-bottom: 2px solid #ffffff;
+  border-bottom: 2px solid #fff;
   padding-bottom: 2px;
 }
 
 .nav-logout {
   all: unset;
   cursor: pointer;
-  color: #ffffff;
+  color: #fff;
   font-weight: 700;
 }
 
 /* レスポンシブ：幅が狭いときはロゴを少し小さく */
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .brand__logo {
     width: 120px;
   }
 }
 
 /* =========================================
-   メイン（中央寄せ / 共通レイアウト）
+  メイン（中央寄せ / 共通レイアウト）
 ========================================= */
 .main {
   min-height: calc(100vh - 56px);
@@ -154,7 +157,7 @@ body {
 }
 
 /* =========================================
-   ボタン共通
+  ボタン共通
 ========================================= */
 .btn {
   display: inline-flex;
@@ -198,8 +201,8 @@ body {
 }
 
 /* =========================================
-   状態別の余白・配置
-   （内容表示はBlade側で制御 / 見た目だけ合わせる）
+  状態別の余白・配置
+  （内容表示はBlade側で制御 / 見た目だけ合わせる）
 ========================================= */
 
 /* 出勤前（中央に大ボタン1個） */
@@ -236,10 +239,10 @@ body {
 }
 
 /* =========================================
-   レスポンシブ（PC幅 1400-1540pxで崩れない想定）
-   ※スマホでも破綻しない程度に最小限の調整
+  レスポンシブ（PC幅 1400-1540pxで崩れない想定）
+  ※スマホでも破綻しない程度に最小限の調整
 ========================================= */
-@media (max-width: 640px) {
+@media (max-width: 768px)  {
   .time {
     font-size: 56px;
   }
@@ -260,6 +263,7 @@ body {
 }
 
 /* 勤怠一覧（user） */
+
 /* === 一覧タイトル === */
 .section-title {
   display: flex;
@@ -277,11 +281,12 @@ body {
   display: inline-block;
   width: 5px;
   height: 30px;
-  background: #111111;
+  background: #111;
   border-radius: 2px;
 }
 
 /* === 月切替（前月 / YYYY/MM / 翌月） === */
+
 /* 月切替の外枠（バー）— テーブルと同じ幅で中央寄せ */
 .month-switch-area {
   max-width: var(--list-width);
@@ -289,8 +294,8 @@ body {
   background: #fff;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
-  padding: 8px 8px;
-  box-shadow: var(--shadow, 0 1px 2px rgba(0, 0, 0, .04));
+  padding: 8px;
+  box-shadow: var(--shadow, 0 1px 2px rgb(0 0 0 / 4%));
 }
 
 .month-switch {
@@ -300,8 +305,8 @@ body {
 }
 
 .month-btn {
-  background: #ffffff;
-  color: #111111;
+  background: #fff;
+  color: #111;
   text-decoration: none;
   font-size: 14px;
   padding: 6px 12px;
@@ -328,7 +333,7 @@ body {
 .card.table-wrap {
   max-width: 760px;
   margin: 0 auto;
-  background: #ffffff;
+  background: #fff;
   border-radius: 10px;
   box-shadow: var(--shadow);
   padding: 6px 0;
@@ -345,12 +350,13 @@ body {
 .table td {
   text-align: center;
   padding: 10px 8px;
-  border-bottom: 1px solid #eeeeee;
+  border-bottom: 1px solid #eee;
 }
 
 .table thead th {
   font-weight: 700;
   color: #6b7280;
+
   /* 見出しの薄グレー */
 }
 
@@ -359,15 +365,6 @@ body {
 }
 
 /* 詳細リンク */
-.link-detail {
-  color: #111111;
-  font-weight: 700;
-  text-decoration: none;
-}
-
-.link-detail:hover {
-  text-decoration: underline;
-}
 
 /* 空行メッセージ */
 .empty {
@@ -376,30 +373,19 @@ body {
 }
 
 /* 勤怠詳細画面(user) */
-/* ===== 勤怠詳細（カード/行レイアウト） ===== */
-.detail-card {
-  max-width: 760px;
-  margin: 0 auto;
-  background: #ffffff;
-  border-radius: 12px;
-  box-shadow: var(--shadow);
-  overflow: hidden;
-}
 
+/* ===== 勤怠詳細（カード/行レイアウト） ===== */
 .detail-row {
   display: grid;
   grid-template-columns: 160px 1fr;
   align-items: center;
   padding: 16px 20px;
-  border-bottom: 1px solid #eeeeee;
-}
-
-.detail-row:last-child {
-  border-bottom: none;
+  border-bottom: 1px solid #eee;
 }
 
 .detail-label {
   color: #6b7280;
+
   /* 見出し薄グレー */
   font-weight: 700;
   font-size: 12px;
@@ -409,6 +395,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+
   /* スクショは中央寄せ */
   gap: 12px;
 }
@@ -418,12 +405,6 @@ body {
 }
 
 /* 日付の2分割表示（2023年 / 6月1日） */
-.date-split {
-  display: inline-flex;
-  align-items: center;
-  gap: 64px;
-}
-
 .date-chip {
   display: inline-block;
   font-weight: 800;
@@ -442,28 +423,13 @@ body {
   height: 32px;
   border: 1px solid #e5e7eb;
   border-radius: 6px;
-  background: #ffffff;
+  background: #fff;
   text-align: center;
   font-weight: 700;
   padding: 4px 8px;
 }
 
-.tilde {
-  font-weight: 700;
-  color: #6b7280;
-}
-
 /* 備考入力 */
-.note-input {
-  width: 60%;
-  min-width: 320px;
-  height: 40px;
-  border: 1px solid #e5e7eb;
-  border-radius: 6px;
-  background: #ffffff;
-  padding: 8px 10px;
-  font-size: 14px;
-}
 
 /* エラー文言（行下に出す） */
 .row-error {
@@ -495,7 +461,7 @@ body {
   font-weight: 700;
   letter-spacing: 0.05em;
   cursor: pointer;
-  margin: 24px 0 0 0;
+  margin: 24px 0 0;
 }
 
 .btn-detail {
@@ -503,7 +469,7 @@ body {
   align-items: center;
   justify-content: center;
   background: #0b0b0b;
-  color: #ffffff;
+  color: #fff;
   border: 1px solid #0b0b0b;
   border-radius: 10px;
   height: 44px;
@@ -541,11 +507,6 @@ body {
   line-height: 1.6;
 }
 
-.detail-card {
-  overflow: hidden;
-  /* 既存のままでOK（外側の .pending-footnote には影響しない） */
-}
-
 .form-error {
   margin-top: 6px;
   font-size: 14px;
@@ -563,19 +524,7 @@ body {
   margin-top: 6px;
 }
 
-.note-input {
-  display: block;
-  width: 100%;
-}
-
 /* 出勤・退勤や休憩の行を折り返して、エラーは下段に回す */
-.time-range {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
 .time-range .form-error {
   flex-basis: 100%;
 }
@@ -587,14 +536,10 @@ body {
 }
 
 /* レスポンシブ微調整 */
-@media (max-width: 640px) {
+@media (min-width: 768px) {
   .detail-row {
     grid-template-columns: 120px 1fr;
-    padding: 14px 14px;
-  }
-
-  .date-split {
-    gap: 28px;
+    padding: 14px;
   }
 
   .note-input {
@@ -604,6 +549,7 @@ body {
 }
 
 /* 申請一覧画面 */
+
 /* ===== 申請一覧：タブ（細線アンダーライン型） ===== */
 .tabs-bar {
   display: flex;
@@ -611,7 +557,7 @@ body {
   align-items: center;
   max-width: 760px;
   margin: 0 auto 14px;
-  border-bottom: 1px solid #000000;
+  border-bottom: 1px solid #000;
   padding: 0 4px;
 }
 
@@ -622,15 +568,17 @@ body {
   font-weight: 800;
   text-decoration: none;
   color: #6b7280;
+
   /* 非アクティブは薄め */
   border-bottom: 3px solid transparent;
   margin-bottom: -1px;
+
   /* 下線と揃える */
 }
 
 .tabs__link.is-active {
-  color: #111111;
-  border-bottom-color: #111111;
+  color: #111;
+  border-bottom-color: #111;
 }
 
 /* ===== 申請一覧テーブル（列幅・整列） ===== */
@@ -646,36 +594,42 @@ body {
 .table--request th:nth-child(1),
 .table--request td:nth-child(1) {
   width: 96px;
+
   /* 状態 */
 }
 
 .table--request th:nth-child(2),
 .table--request td:nth-child(2) {
   width: 120px;
+
   /* 名前 */
 }
 
 .table--request th:nth-child(3),
 .table--request td:nth-child(3) {
   width: 140px;
+
   /* 対象日時 */
 }
 
 .table--request th:nth-child(4),
 .table--request td:nth-child(4) {
   width: auto;
+
   /* 申請理由（可変） */
 }
 
 .table--request th:nth-child(5),
 .table--request td:nth-child(5) {
   width: 140px;
+
   /* 申請日時 */
 }
 
 .table--request th:nth-child(6),
 .table--request td:nth-child(6) {
   width: 80px;
+
   /* 詳細 */
 }
 
@@ -685,6 +639,7 @@ body {
 }
 
 /* 勤怠一覧画面（admin） */
+
 /* 見出しを少し大きめに（画像準拠） */
 .section-title--lg {
   font-size: 20px;
@@ -699,8 +654,8 @@ body {
   background: #fff;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
-  padding: 8px 8px;
-  box-shadow: var(--shadow, 0 1px 2px rgba(0, 0, 0, .04));
+  padding: 8px;
+  box-shadow: var(--shadow, 0 1px 2px rgb(0 0 0 / 4%));
 }
 
 .day-switch {
@@ -710,8 +665,8 @@ body {
 }
 
 .day-btn {
-  background: #ffffff;
-  color: #111111;
+  background: #fff;
+  color: #111;
   text-decoration: none;
   font-size: 14px;
   padding: 6px 12px;
@@ -735,6 +690,7 @@ body {
 }
 
 /* 勤怠一覧画面（admin） */
+
 /* ===== 管理者：日次テーブル幅・列幅 ===== */
 .table-wrap--admin-daily {
   max-width: 760px;
@@ -748,6 +704,7 @@ body {
 .table--admin-daily th:nth-child(1),
 .table--admin-daily td:nth-child(1) {
   width: 180px;
+
   /* 名前 */
   text-align: left;
   padding-left: 14px;
@@ -758,6 +715,7 @@ body {
 .table--admin-daily th:nth-child(3),
 .table--admin-daily td:nth-child(3) {
   width: 120px;
+
   /* 出勤/退勤 */
 }
 
@@ -766,12 +724,14 @@ body {
 .table--admin-daily th:nth-child(5),
 .table--admin-daily td:nth-child(5) {
   width: 100px;
+
   /* 休憩/合計 */
 }
 
 .table--admin-daily th:nth-child(6),
 .table--admin-daily td:nth-child(6) {
   width: 80px;
+
   /* 詳細 */
 }
 
@@ -780,7 +740,7 @@ body {
 }
 
 /* スマホ微調整 */
-@media (max-width: 640px) {
+@media (min-width: 758px) {
   .section-title--lg {
     font-size: 18px;
   }
@@ -792,6 +752,7 @@ body {
 }
 
 /* 勤怠詳細（admin） */
+
 /* アラート */
 .alert-error {
   background: #ffecec;
@@ -895,7 +856,7 @@ body {
 }
 
 /* レスポンシブ（PC幅でも崩れない前提、タブレット対応） */
-@media (max-width: 768px) {
+@media (min-width: 768px) {
   .detail-row {
     grid-template-columns: 1fr;
   }
@@ -914,6 +875,7 @@ body {
 }
 
 /* スタッフ一覧画面（admin） */
+
 /* スタッフ一覧：テーブルカード */
 .table-wrap--admin-users {
   max-width: 760px;
@@ -961,17 +923,9 @@ body {
 }
 
 /* 詳細リンク */
-.link-detail {
-  text-decoration: underline;
-  color: #111;
-}
-
-.link-detail:hover {
-  opacity: 0.85;
-}
 
 /* レスポンシブ（幅狭での余白最適化） */
-@media (max-width: 768px) {
+@media (min-width: 768px) {
   .table-wrap--admin-users {
     margin: 16px 12px 40px;
     border-radius: 10px;
@@ -985,6 +939,7 @@ body {
 }
 
 /* スタッフ別勤怠一覧画面（admin） */
+
 /* 月スイッチ */
 .month-nav {
   display: inline-block;
@@ -1047,6 +1002,7 @@ body {
 }
 
 /* CSVボタン */
+
 /* 右寄せのフッター操作行（CSV出力ボタン置き場） */
 .footer-actions {
   max-width: 760px;
@@ -1084,6 +1040,7 @@ body {
 .link-detail {
   text-decoration: underline;
   color: #111;
+  font-weight: 700;
 }
 
 .link-detail:hover {
@@ -1091,7 +1048,7 @@ body {
 }
 
 /* レスポンシブ */
-@media (max-width: 768px) {
+@media (min-width: 768px) {
   .table-wrap--admin-user-monthly {
     margin: 0 12px 20px;
   }
@@ -1104,6 +1061,7 @@ body {
 }
 
 /* 申請一覧（admin） */
+
 /* ===== 申請一覧：タブ ===== */
 .request-tabs {
   display: flex;
@@ -1176,15 +1134,6 @@ body {
 }
 
 /* 修正申請承認画面（admin） */
-
-
-
-
-
-
-
-
-
 .detail-gap {
   display: inline-block;
   width: 24px;
@@ -1193,6 +1142,7 @@ body {
 .tilde {
   display: inline-block;
   margin: 0 24px;
+  font-weight: 700;
 }
 
 .memo-row .detail-value {
@@ -1204,7 +1154,7 @@ body {
   display: inline-block;
   padding: 12px 36px;
   background: #b5b5b5;
-  color: #ffffff;
+  color: #fff;
   border: none;
   border-radius: 10px;
   font-weight: 700;
@@ -1212,7 +1162,7 @@ body {
   cursor: not-allowed;
 }
 
-@media (max-width: 768px) {
+@media (min-width: 768px) {
   .detail-row {
     grid-template-columns: 120px 1fr;
     padding: 16px 12px;

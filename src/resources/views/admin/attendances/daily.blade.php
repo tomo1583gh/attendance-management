@@ -17,7 +17,7 @@
   <div class="day-switch-area">
     <div class="day-switch">
       <a class="day-btn"
-       href="{{ route('admin.attendances.daily', ['date' => $prevDate]) }}">← 前日</a>
+      href="{{ route('admin.attendances.daily', ['date' => $prevDate]) }}">← 前日</a>
 
     <div class="day-display">
       <span class="day-display__icon" aria-hidden="true">📅</span>
@@ -25,7 +25,7 @@
     </div>
 
     <a class="day-btn"
-       href="{{ route('admin.attendances.daily', ['date' => $nextDate]) }}">翌日 →</a>
+      href="{{ route('admin.attendances.daily', ['date' => $nextDate]) }}">翌日 →</a>
     </div>
   </div>
 
@@ -52,7 +52,7 @@
             <td>
               @if(!empty($row->attendance_id))
                 <a class="link-detail"
-                   href="{{ route('admin.attendances.show', [
+                  href="{{ route('admin.attendances.show', [
                         'id' => $row->attendance_id,
                         'return_to' => request()->fullUrl()
                         ]) }}">

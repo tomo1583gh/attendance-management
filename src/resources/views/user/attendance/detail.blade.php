@@ -70,14 +70,6 @@
           <span class="date-year">{{ optional($attendance->work_date)->format('Y') }}年</span>
           <span class="date-monthday">{{ optional($attendance->work_date)->format('n月j日') }}</span>
 
-          {{--
-          @if($showDate)
-            <time class="detail-date"
-                  datetime="{{ optional($showDate)->toDateString() }}"
-                  data-date="{{ optional($showDate)->toDateString() }}">
-              {{ optional($showDate)->format('Y/m/d') }}
-            </time>
-          @endif --}}
         </div>
       </div>
       

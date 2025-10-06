@@ -6,9 +6,9 @@
 
 .auth-body {
   margin: 0;
-  background: #ffffff;
+  background: #fff;
   color: #000;
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic UI", "Meiryo", sans-serif;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic UI", Meiryo, sans-serif;
   line-height: 1.6;
 }
 
@@ -49,7 +49,7 @@
   text-align: center;
   font-size: 28px;
   font-weight: 700;
-  margin: 0 0 28px 0;
+  margin: 0 0 28px;
 }
 
 .auth-form {
@@ -168,7 +168,7 @@
   padding-left: 0;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .auth-main {
     margin: 32px auto 64px;
   }
@@ -194,7 +194,7 @@
   padding: 0;
   margin: -1px;
   overflow: hidden;
-  clip: rect(0, 0, 1px, 1px);
+  clip-path: inset(50%);
   white-space: nowrap;
   border: 0;
 }
@@ -211,7 +211,7 @@
   font-weight: 700;
   font-size: 16px;
   line-height: 1.9;
-  margin: 0 0 4px 0;
+  margin: 0 0 4px;
   color: #000;
 }
 

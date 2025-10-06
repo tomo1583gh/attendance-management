@@ -240,3 +240,4 @@ exit
 php artisan test
 php artisan test
 exit
+exit
