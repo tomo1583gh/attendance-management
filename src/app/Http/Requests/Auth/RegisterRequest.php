@@ -24,9 +24,7 @@ class RegisterRequest extends FormRequest
         return [
             'name'                  => ['required', 'string', 'max:255'],
             'email'                 => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
-            // 8文字以上 & 確認用と一致
             'password'              => ['required', 'string', 'min:8', 'confirmed'],
-            // Blade 側で name="password_confirmation" にすること
             'password_confirmation' => ['required'],
         ];
     }

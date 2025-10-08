@@ -24,7 +24,7 @@ class StoreCorrectionRequest extends FormRequest
         return [
             'clock_in_at'  => ['nullable', 'date'],
             'clock_out_at' => ['nullable', 'date', 'after_or_equal:clock_in_at'],
-            'breaks'       => ['array'], // [['start'=>'...','end'=>'...'], ...]
+            'breaks'       => ['array'], 
             'reason'       => ['required', 'string'],
         ];
     }

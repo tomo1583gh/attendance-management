@@ -23,7 +23,6 @@ class AttendanceDetailRequest extends FormRequest
     public function rules(): array
     {
         return [
-            // time入力なら H:i を想定。datetime-local なら date_format:Y-m-d\TH:i に変更
             'clock_in'  => ['nullable', 'date_format:H:i'],
             'clock_out' => ['nullable', 'date_format:H:i'],
 
@@ -32,7 +31,6 @@ class AttendanceDetailRequest extends FormRequest
             'breaks.*.start'      => ['nullable', 'date_format:H:i'],
             'breaks.*.end'        => ['nullable', 'date_format:H:i'],
 
-            // 4) 備考は必須（要件より）
             'note'                => ['required', 'string'],
         ];
     }
