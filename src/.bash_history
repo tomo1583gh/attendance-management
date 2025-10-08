@@ -241,3 +241,10 @@ php artisan test
 php artisan test
 exit
 exit
+php artisan migrate:fresh --seed
+php artisan tinker --execute="Schema::hasTable('attendance_breaks') ? '残ってる' : 'OK'"
+php artisan tinker --ex
+exit
+php artisan tinker
+php artisan test
+exit

@@ -13,3 +13,6 @@ Attendance::where('user_id', $userId)
     ->orderByDesc('id')
     ->limit(10)
     ->get(['id','user_id','work_date','clock_in_at','clock_out_at']);
+Schema::hasTable('attendance_breaks');
+Schema::hasTable('break_times');
+exit
