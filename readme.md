@@ -1,83 +1,172 @@
-# 勤怠管理アプリ（Laravel 10）
+# 勤怠管理アプリ（Attendance Management App）
 
-## 動作環境
-- Docker, docker compose
-- PHP 8.2 / Laravel 10
-- MySQL 8
-- Mailhog
+プロジェクト概要
 
----
+本アプリは、スクールの模擬案件課題として作成したWEBアプリです。
 
-## セットアップ（開発環境）
-```bash
-git clone <this-repo>
-cd attendance-management
-docker compose up -d --build
-docker compose exec php bash -lc "cp .env.example .env && php artisan key:generate"
-# .env の DB / MAIL を確認（Mailhog）
-docker compose exec php bash -lc "php artisan migrate --seed"
-セットアップ（テスト環境）
-bash
-コードをコピーする
-# .env.testing.example をコピー
-cp .env.testing.example .env.testing
+Laravel・Fortify・Dockerを用いた勤怠管理システムの実装を目的としています。  
+一般ユーザーと管理者の2権限を持ち、勤怠登録・修正申請・承認までを一連で管理できます。
 
-# APP_KEY を発行して .env.testing に反映
-php artisan key:generate --show
-# → 表示されたキーを .env.testing の APP_KEY に貼り付ける
+## 開発環境
+| 項目 | 内容　|
+|:----:|:----:| 
+ フレームワーク |	Laravel 10
+ 言語 |	PHP 8.4.4
+ データベース |	MySQL 8.0.43
+ 環境構築 |	Docker/Docker Compose
+ Webサーバー |	Nginx 1.21
+ メール環境 |	Mailhog
+ 管理ツール |	phpMyAdmin（http://localhost:8080）
 
-# マイグレーション実行（テストDB用）
-php artisan migrate:fresh --seed --env=testing
-テスト実行：
+## 使用技術
+|分類|技術|
+|:--:|:--:|
+ 認証機能|	Laravel Fortify
+ メール送信|	Mailhog（SMTP / 開発環境用）
+ バリデーション|	FormRequest クラス
+ DB操作|	Eloquent ORM
+ テンプレート|	Blade
+ テスト|	PHPUnit（Feature Test）
+ デザイン|	CSS（ブロック形式／レスポンシブ対応）
+ その他|	Seeder による初期データ登録
 
-bash
-コードをコピーする
-php artisan test
-ログイン情報（必須）
-一般ユーザー（メール認証済）
-メール：user@example.com
+## 環境構築
+### dockerビルド
 
-パスワード：password
+1. リポジトリのクローン
 
-ログインURL：/login
+   `git clone https://github.com/tomo1583gh/attendance-management.git`
+
+2. 階層を変更
+
+    `cd attendance-management`
+
+3. Dockerコンテナのビルド・起動
+
+    `docker-compose up -d --build`
+
+    ※  MySQLは、OSによって起動しない場合があるのでそれぞれのPCに合わせてdocker-compose.ymlファイルを編集して下さい。
+
+### Laravelセットアップ
+
+1. PHPコンテナに入る
+
+    `docker-compose exec php bash`
+
+2. Composerで依存パッケージをインストール
+
+    `composer install`
+
+3. .envファイルを作成
+
+    `cp .env.example .env`
+
+    必要に応じて環境変数を編集
+
+4. アプリケーションキーを生成
+
+    `php artisan key:generate`
+
+5. マイグレーションを実行
+
+    `php artisan migrate`
+
+6. 初期データを投入
+
+    `php artisan db:seed`
+
+7. Mailhog起動（別途インストール必要）
+
+    http://localhost:8025 にアクセスし、送信メールを確認出来ます  
+    `.env`のMAIL_HOST=mailhogを設定してください
+
+8. `http://localhost` にアクセス
+
+## URL
+| サービス | URL |
+|:--------:|:-----:|
+| 開発環境 | http://localhost:8000 |
+| phpMyAdmin | http://localhost:8080 |
+| Mailhog | http://localhost:8025 |
+
+
+## 認証機能（Fortify）
+一般ユーザー
+
+1. /register から会員登録
+
+2. 登録メール内リンクでメール認証
+
+3. 認証後、自動的に /attendance へ遷移
 
 管理者
-メール：admin@example.com
 
-パスワード：password
+1. ログインURL：/admin/login
 
-ログインURL：/admin/login
+2. 認証後、勤怠一覧画面（/admin/attendances）へ遷移
 
-主要画面URL
-会員登録（一般）：/register
+## テストユーザーについて
 
-ログイン（一般）：/login
+アプリ起動後、Seederにより自動でテストユーザーが作成されます  
+ログインや購入機能の動作確認にご利用ください
 
-出勤登録：/attendance
+### ログイン情報（ダミーユーザー）
 
-勤怠一覧：/attendance/list
+一般ユーザー
+- メールアドレス：user@example.com  
+- パスワード：password
 
-勤怠詳細：/attendance/detail/{id}
+管理者
+- メールアドレス：admin@example.com
+- パスワード：password
 
-申請一覧（一般）：/stamp_correction_request/list
+## 主な機能一覧
+### 一般ユーザー側
 
-管理ログイン：/admin/login
+- 会員登録・メール認証	Fortify＋Mailhog により確認メール送信
+- ログイン／ログアウト	セッション管理
+- 出勤／休憩／退勤登録	休憩は複数記録可能（break_timesテーブル）
+- 勤怠一覧	月単位で出勤・退勤時刻を表示
+- 勤怠詳細	当日の詳細表示・修正申請可能
+- 修正申請	申請理由・修正時刻を送信（承認待ち状態）
+- 申請一覧	承認待ち／承認済みタブ切替対応
+### 管理者側
 
-管理 日次勤怠一覧：/admin/attendances
+- ログイン	Fortifyによる管理者専用認証
+- 日別勤怠一覧	全スタッフの勤怠を日別表示
+- 勤怠詳細編集	出退勤・休憩時間・備考を修正可
+- 修正申請一覧	「承認待ち」「承認済み」切替可能
+- 修正申請承認	勤怠反映処理・承認者記録
+- スタッフ一覧	登録ユーザー一覧表示
+- スタッフ別勤怠	各スタッフの月別勤怠を参照可能
 
-管理 勤怠詳細：/admin/attendances/{id}
+## テーブル構成
 
-スタッフ一覧：/admin/users
+主要テーブルは以下の通りです：
 
-スタッフ別月次：/admin/users/{user}/attendances
+- users（一般ユーザー）
 
-申請一覧（管理）：/admin/requests
+- admins（管理者）
 
-申請承認：/admin/requests/{id}
+- attendances（勤怠）
 
-テストデータ
-以下でダミーデータが投入されます（管理者/一般ユーザー、勤怠・休憩データ含む）：
+- break_times（休憩時間）
 
-bash
-コードをコピーする
-php artisan migrate:fresh --seed
+- correction_requests（修正申請）
+
+## ER図
+
+![ER図](screenshot/er_diagram.png)
+
+## テスト実行
+`docker compose exec php php artisan test`
+
+
+- Feature テスト：ユーザー／管理者それぞれの勤怠登録・修正・承認フローを検証
+
+- FormRequest バリデーションを含む主要シナリオを自動テスト化済み
+
+## ライセンス
+
+このプロジェクトは学習目的の模擬案件として作成されたものです。
+商用利用・再配布はご遠慮ください。
