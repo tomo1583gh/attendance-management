@@ -80,7 +80,55 @@ Laravel・Fortify・Dockerを用いた勤怠管理システムの実装を目的
     http://localhost:8025 にアクセスし、送信メールを確認出来ます  
     `.env`のMAIL_HOST=mailhogを設定してください
 
-8. `http://localhost` にアクセス
+8. ブラウザでアプリにアクセス
+
+    `http://localhost`
+
+### ⚠️ 権限エラーが発生する場合
+
+WSL や Docker 環境で .env ファイルを編集・保存する際に、
+以下のようなエラーが出ることがあります。
+
+`EACCES: permission denied, open '/home/ユーザー名/.../.env'`
+
+
+これは .env の所有者または権限が root になっており、
+VSCode など通常ユーザーで書き込みできない状態です。
+
+#### 対処方法
+
+プロジェクト直下で以下を実行してください。
+
+.env の所有者を自分に変更
+`sudo chown $(whoami):$(whoami) .env`
+
+書き込み権限を付与
+`chmod 664 .env`
+
+
+同様のエラーが他のファイルでも発生する場合は、
+以下を実行して全ファイルの所有者を自分に戻します。
+
+`sudo chown -R $(whoami):$(whoami) .`
+
+#### 主な原因
+
+- sudo コマンドで .env を作成または編集した
+
+- コンテナ内（root権限）で .env を生成した
+
+- storage/ や bootstrap/cache の権限が root になっている
+
+#### 再発防止策
+
+- .env は WSL 側で cp .env.example .env として作成する
+
+- sudo は極力使わず、通常ユーザーで作業する
+
+- 権限のリセットを定期的に実行
+
+`sudo chown -R $(whoami):$(whoami) storage bootstrap/cache`
+`chmod -R 775 storage bootstrap/cache`
 
 ## URL
 | サービス | URL |
