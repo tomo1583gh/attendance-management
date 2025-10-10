@@ -100,9 +100,11 @@ VSCode など通常ユーザーで書き込みできない状態です。
 プロジェクト直下で以下を実行してください。
 
 .env の所有者を自分に変更
+
 `sudo chown $(whoami):$(whoami) .env`
 
 書き込み権限を付与
+
 `chmod 664 .env`
 
 
@@ -141,13 +143,16 @@ VSCode など通常ユーザーで書き込みできない状態です。
 対策：プロジェクト直下に .env（Compose 用）を作成し、ホストの UID/GID を設定してください。
 
 Linux/WSL の例
+
 `echo "UID=$(id -u)" >> .env`
+
 `echo "GID=$(id -g)" >> .env`
 
 
 .env 例（Windows/macOS の場合は任意の値でOK・未使用なら省略可）:
 
 `UID=1000`
+
 `GID=1000`
 
 
