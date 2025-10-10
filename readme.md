@@ -130,6 +130,38 @@ VSCode など通常ユーザーで書き込みできない状態です。
 `sudo chown -R $(whoami):$(whoami) storage bootstrap/cache`
 `chmod -R 775 storage bootstrap/cache`
 
+### UID/GID の設定（Linux/WSL 推奨）
+
+コンテナ内のファイル所有者をホストのユーザに合わせるため、docker-compose.yml で ${UID} / ${GID} を参照しています。未設定だと起動時に以下の WARN が表示されます:
+
+`WARN The "UID" variable is not set. Defaulting to a blank string.`
+`WARN The "GID" variable is not set. Defaulting to a blank string.`
+
+
+対策：プロジェクト直下に .env（Compose 用）を作成し、ホストの UID/GID を設定してください。
+
+Linux/WSL の例
+`echo "UID=$(id -u)" >> .env`
+`echo "GID=$(id -g)" >> .env`
+
+
+.env 例（Windows/macOS の場合は任意の値でOK・未使用なら省略可）:
+
+`UID=1000`
+`GID=1000`
+
+
+注意: ここでいう .env は Docker Compose 用 です。
+Laravel の app/.env（アプリ設定）とは別ファイルです。混同しないでください。
+
+#### よくある質問
+
+- ##### Windows/macOS で必要？
+厳密には不要なことが多いですが、docker-compose.yml が ${UID}/${GID} を参照している限り、WARN を避けるために定義しておくのが無難です。
+
+- ##### すでに WARN が出ているけど動いてる
+動作には即影響しない場合もあります。ただし Linux/WSL ではファイル権限が root:root になる等の副作用があり得るので、設定推奨です。
+
 ## URL
 | サービス | URL |
 |:--------:|:-----:|
