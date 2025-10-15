@@ -136,8 +136,10 @@ VSCode など通常ユーザーで書き込みできない状態です。
 
 - 権限のリセットを定期的に実行
 
-`sudo chown -R $(whoami):$(whoami) storage bootstrap/cache`
-`chmod -R 775 storage bootstrap/cache`
+```bash
+sudo chown -R $(whoami):$(whoami) storage bootstrap/cache
+chmod -R 775 storage bootstrap/cache
+```
 
 ### UID/GID の設定（Linux/WSL 推奨）
 
