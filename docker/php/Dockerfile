@@ -14,8 +14,7 @@ RUN curl -sS https://getcomposer.org/installer | php \
 # -------- ホストの UID/GID でユーザーを作る --------
 ARG UID=1000
 ARG GID=1000
-RUN groupadd -g ${GID} app \
-  && useradd -ms /bin/bash -u ${UID} -g ${GID} app
+RUN groupadd -g ${GID} app && useradd -ms /bin/bash -u ${UID} -g ${GID} app
 
 WORKDIR /var/www
 # vendor/.composer キャッシュ等の書き込み権限

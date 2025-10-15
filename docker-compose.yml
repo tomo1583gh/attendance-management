@@ -12,10 +12,11 @@ services:
   php:
     build:
       context: ./docker/php
+      dockerfile: Dockerfile
       args:
-        UID: ${UID}
-        GID: ${GID}
-    user: "${UID}:${GID}"
+        UID: "${UID:-1000}"
+        GID: "${GID:-1000}"
+    user: "${UID:-1000}:${GID:-1000}"
     environment:
       HOME: /var/www
       COMPOSER_HOME: /var/www/.composer
