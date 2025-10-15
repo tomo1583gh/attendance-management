@@ -43,15 +43,22 @@ Laravel・Fortify・Dockerを用いた勤怠管理システムの実装を目的
 
 3. Dockerコンテナのビルド・起動
 
-    `docker-compose up -d --build`
+    `docker compose up -d --build`
 
     ※  MySQLは、OSによって起動しない場合があるのでそれぞれのPCに合わせてdocker-compose.ymlファイルを編集して下さい。
+
+    ※　Linux / WSL 環境で以下のような警告が出る場合は、「UID/GID の設定（Linux/WSL 推奨）」を参照してください。
+
+```text
+    WARN The "UID" variable is not set. Defaulting to a blank string.
+    WARN The "GID" variable is not set. Defaulting to a blank string.
+```    
 
 ### Laravelセットアップ
 
 1. PHPコンテナに入る
 
-    `docker-compose exec php bash`
+    `docker compose exec php bash`
 
 2. Composerで依存パッケージをインストール
 
@@ -134,30 +141,33 @@ VSCode など通常ユーザーで書き込みできない状態です。
 
 ### UID/GID の設定（Linux/WSL 推奨）
 
-コンテナ内のファイル所有者をホストのユーザに合わせるため、docker-compose.yml で ${UID} / ${GID} を参照しています。未設定だと起動時に以下の WARN が表示されます:
-
-`WARN The "UID" variable is not set. Defaulting to a blank string.`
-`WARN The "GID" variable is not set. Defaulting to a blank string.`
+Dockerコンテナ内のファイル所有者をホストのユーザーに合わせるため、
+docker-compose.yml で `${UID}` / `${GID}` を参照しています。
 
 
-対策：プロジェクト直下に .env（Compose 用）を作成し、ホストの UID/GID を設定してください。
+Linux/WSL環境では、これを設定しないとファイル所有者が root になる場合があります。
 
-Linux/WSL の例
+#### 設定手順
 
-`echo "UID=$(id -u)" >> .env`
+プロジェクト直下で以下を実行します
 
-`echo "GID=$(id -g)" >> .env`
+```bash
+    echo "UID=$(id -u)" >> .env
+    echo "GID=$(id -g)" >> .env
+```
 
+または起動時に以下のように指定してもOKです
 
-.env 例（Windows/macOS の場合は任意の値でOK・未使用なら省略可）:
+`UID=$(id -u) GID=$(id -g) docker compose up -d --build`
 
-`UID=1000`
+.env例（Docker Compose用）
 
-`GID=1000`
+⚠️ Laravelの src/.env（アプリ設定）とは別ファイルです。
 
-
-注意: ここでいう .env は Docker Compose 用 です。
-Laravel の app/.env（アプリ設定）とは別ファイルです。混同しないでください。
+```env
+    UID=1000
+    GID=1000
+```
 
 #### よくある質問
 
